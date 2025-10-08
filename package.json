@@ -1,0 +1,56 @@
+{
+  "name": "@cakemail/cli",
+  "version": "0.1.0",
+  "description": "Official Cakemail CLI - Command-line interface for the Cakemail API",
+  "type": "module",
+  "main": "./dist/index.js",
+  "bin": {
+    "cakemail": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc && chmod +x dist/cli.js",
+    "dev": "tsc --watch",
+    "start": "node dist/cli.js",
+    "clean": "rm -rf dist",
+    "rebuild": "npm run clean && npm run build",
+    "generate:types": "openapi-typescript https://api.cakemail.com/openapi.json -o src/types/api.ts",
+    "test": "echo \"Tests not yet implemented\" && exit 0"
+  },
+  "keywords": [
+    "cakemail",
+    "cli",
+    "email",
+    "email-marketing",
+    "api",
+    "command-line",
+    "campaigns",
+    "transactional-email",
+    "analytics"
+  ],
+  "author": {
+    "name": "François Lane",
+    "email": "francois@cakemail.com"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^12.0.0",
+    "axios": "^1.6.0",
+    "chalk": "^5.3.0",
+    "ora": "^8.0.1",
+    "cli-table3": "^0.6.3",
+    "dotenv": "^16.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.8.0",
+    "openapi-typescript": "^7.8.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
