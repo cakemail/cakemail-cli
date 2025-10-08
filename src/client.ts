@@ -16,7 +16,7 @@ export class CakemailClient {
   constructor(config: CakemailConfig) {
     this.config = config;
     this.accessToken = config.accessToken;
-    const baseURL = config.baseURL || process.env.CAKEMAIL_API_BASE || 'https://api.cakemail.com';
+    const baseURL = config.baseURL || process.env.CAKEMAIL_API_BASE || 'https://api.cakemail.dev';
 
     this.client = axios.create({
       baseURL,
