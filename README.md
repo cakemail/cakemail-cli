@@ -42,10 +42,11 @@ cakemail [options] <command>
 
 ### Global Options
 
-- `-f, --format <format>` - Output format: json, table, or compact (default: json)
-- `--api-key <key>` - Override API key from environment
+- `--access-token <token>` - Override access token from environment
 - `--email <email>` - Override email from environment
 - `--password <password>` - Override password from environment
+
+> **Note:** Output is currently JSON only. Table and compact formats are planned for a future release.
 
 ### Commands
 
@@ -155,8 +156,8 @@ cakemail senders delete <id> --force
 ## Examples
 
 ```bash
-# List campaigns in table format
-cakemail -f table campaigns list
+# List campaigns
+cakemail campaigns list
 
 # Create a new list
 cakemail lists create -n "Newsletter Subscribers" -l en
@@ -169,25 +170,6 @@ cakemail campaigns schedule 456 -d "2025-10-15T10:00:00Z"
 
 # Send a test campaign
 cakemail campaigns test 456 -e "test@example.com"
-```
-
-## Output Formats
-
-### JSON (default)
-```bash
-cakemail campaigns list
-# or
-cakemail -f json campaigns list
-```
-
-### Table
-```bash
-cakemail -f table campaigns list
-```
-
-### Compact
-```bash
-cakemail -f compact campaigns list
 ```
 
 ## Development
