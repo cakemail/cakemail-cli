@@ -153,6 +153,38 @@ cakemail senders create -n "John Doe" -e "john@example.com"
 cakemail senders delete <id> --force
 ```
 
+#### Webhooks
+
+```bash
+# List all webhooks
+cakemail webhooks list [options]
+  -l, --limit <number>    Limit results
+  -p, --page <number>     Page number
+
+# Get webhook details
+cakemail webhooks get <id>
+
+# Create a webhook
+cakemail webhooks create -u <url> -e <events> [options]
+  -u, --url <url>         Webhook URL (required)
+  -e, --events <events>   Comma-separated events (required)
+  -n, --name <name>       Webhook name
+  -s, --secret <secret>   Webhook secret for verification
+
+# Update a webhook
+cakemail webhooks update <id> [options]
+  -u, --url <url>         Webhook URL
+  -e, --events <events>   Comma-separated events
+  -n, --name <name>       Webhook name
+  -s, --secret <secret>   Webhook secret
+
+# Archive a webhook
+cakemail webhooks archive <id>
+
+# Unarchive a webhook
+cakemail webhooks unarchive <id>
+```
+
 ## Examples
 
 ```bash
@@ -170,6 +202,13 @@ cakemail campaigns schedule 456 -d "2025-10-15T10:00:00Z"
 
 # Send a test campaign
 cakemail campaigns test 456 -e "test@example.com"
+
+# Create a webhook for email events
+cakemail webhooks create \
+  -u "https://example.com/webhook" \
+  -e "email.sent,email.opened,email.clicked" \
+  -n "My Webhook" \
+  -s "my_secret_key"
 ```
 
 ## Development
