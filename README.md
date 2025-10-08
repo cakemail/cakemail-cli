@@ -5,13 +5,13 @@ Official command-line interface for the Cakemail API.
 ## Installation
 
 ```bash
-npm install -g @cakemail/cli
+npm install -g @cakemail-org/cli
 ```
 
 Or run directly with npx:
 
 ```bash
-npx @cakemail/cli --help
+npx @cakemail-org/cli --help
 ```
 
 ## Configuration
