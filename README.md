@@ -107,13 +107,44 @@ cakemail campaigns create -n "My Campaign" -l <list-id> [options]
   -t, --template-id <id>    Template ID
   --subject <subject>       Email subject
 
+# Update a campaign
+cakemail campaigns update <id> [options]
+  -n, --name <name>         Campaign name
+  -l, --list-id <id>        List ID
+  -s, --sender-id <id>      Sender ID
+  -t, --template-id <id>    Template ID
+  --subject <subject>       Email subject
+
 # Schedule a campaign
 cakemail campaigns schedule <id> -d <datetime>
   -d, --date <datetime>   Schedule datetime (ISO 8601)
 
+# Reschedule a campaign
+cakemail campaigns reschedule <id> -d <datetime>
+  -d, --date <datetime>   New schedule datetime (ISO 8601)
+
+# Unschedule a campaign
+cakemail campaigns unschedule <id>
+
 # Send test email
 cakemail campaigns test <id> -e <email>
   -e, --email <email>     Recipient email
+
+# Archive/Unarchive campaign
+cakemail campaigns archive <id>
+cakemail campaigns unarchive <id>
+
+# Cancel a scheduled campaign
+cakemail campaigns cancel <id>
+
+# Suspend/Resume campaign
+cakemail campaigns suspend <id>
+cakemail campaigns resume <id>
+
+# List campaign links
+cakemail campaigns links <id> [options]
+  -l, --limit <number>    Limit results
+  -p, --page <number>     Page number
 
 # Delete campaign
 cakemail campaigns delete <id> --force
@@ -234,6 +265,12 @@ cakemail emails send \
   --from-name "My Shop" \
   --tracking \
   --tags "transactional,order"
+
+# Manage campaign lifecycle
+cakemail campaigns schedule 123 -d "2025-10-15T10:00:00Z"
+cakemail campaigns suspend 123
+cakemail campaigns resume 123
+cakemail campaigns cancel 123
 
 # List campaigns
 cakemail campaigns list

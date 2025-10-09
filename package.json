@@ -1,6 +1,6 @@
 {
   "name": "@cakemail-org/cli",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Official Cakemail CLI - Command-line interface for the Cakemail API",
   "type": "module",
   "main": "./dist/index.js",

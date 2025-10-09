@@ -121,6 +121,36 @@ export function createCampaignsCommand(client: CakemailClient, formatter: Output
       }
     });
 
+  // Update campaign
+  campaigns
+    .command('update <id>')
+    .description('Update a campaign')
+    .option('-n, --name <name>', 'Campaign name')
+    .option('-l, --list-id <id>', 'List ID')
+    .option('-s, --sender-id <id>', 'Sender ID')
+    .option('-t, --template-id <id>', 'Template ID')
+    .option('--subject <subject>', 'Email subject')
+    .action(async (id, options) => {
+      const spinner = ora(`Updating campaign ${id}...`).start();
+      try {
+        const payload: any = {};
+        if (options.name) payload.name = options.name;
+        if (options.listId) payload.list_id = parseInt(options.listId);
+        if (options.senderId) payload.sender_id = parseInt(options.senderId);
+        if (options.templateId) payload.template_id = parseInt(options.templateId);
+        if (options.subject) payload.subject = options.subject;
+
+        const data = await client.patch(`/campaigns/${id}`, payload);
+        spinner.stop();
+        formatter.success(`Campaign ${id} updated`);
+        formatter.output(data);
+      } catch (error: any) {
+        spinner.stop();
+        formatter.error(error.message);
+        process.exit(1);
+      }
+    });
+
   // Delete campaign
   campaigns
     .command('delete <id>')
@@ -137,6 +167,158 @@ export function createCampaignsCommand(client: CakemailClient, formatter: Output
         await client.delete(`/campaigns/${id}`);
         spinner.stop();
         formatter.success(`Campaign ${id} deleted`);
+      } catch (error: any) {
+        spinner.stop();
+        formatter.error(error.message);
+        process.exit(1);
+      }
+    });
+
+  // Archive campaign
+  campaigns
+    .command('archive <id>')
+    .description('Archive a campaign')
+    .action(async (id) => {
+      const spinner = ora(`Archiving campaign ${id}...`).start();
+      try {
+        const data = await client.post(`/campaigns/${id}/archive`);
+        spinner.stop();
+        formatter.success(`Campaign ${id} archived`);
+        formatter.output(data);
+      } catch (error: any) {
+        spinner.stop();
+        formatter.error(error.message);
+        process.exit(1);
+      }
+    });
+
+  // Unarchive campaign
+  campaigns
+    .command('unarchive <id>')
+    .description('Unarchive a campaign')
+    .action(async (id) => {
+      const spinner = ora(`Unarchiving campaign ${id}...`).start();
+      try {
+        const data = await client.post(`/campaigns/${id}/unarchive`);
+        spinner.stop();
+        formatter.success(`Campaign ${id} unarchived`);
+        formatter.output(data);
+      } catch (error: any) {
+        spinner.stop();
+        formatter.error(error.message);
+        process.exit(1);
+      }
+    });
+
+  // Cancel campaign
+  campaigns
+    .command('cancel <id>')
+    .description('Cancel a campaign')
+    .action(async (id) => {
+      const spinner = ora(`Canceling campaign ${id}...`).start();
+      try {
+        const data = await client.post(`/campaigns/${id}/cancel`);
+        spinner.stop();
+        formatter.success(`Campaign ${id} canceled`);
+        formatter.output(data);
+      } catch (error: any) {
+        spinner.stop();
+        formatter.error(error.message);
+        process.exit(1);
+      }
+    });
+
+  // Suspend campaign
+  campaigns
+    .command('suspend <id>')
+    .description('Suspend a campaign')
+    .action(async (id) => {
+      const spinner = ora(`Suspending campaign ${id}...`).start();
+      try {
+        const data = await client.post(`/campaigns/${id}/suspend`);
+        spinner.stop();
+        formatter.success(`Campaign ${id} suspended`);
+        formatter.output(data);
+      } catch (error: any) {
+        spinner.stop();
+        formatter.error(error.message);
+        process.exit(1);
+      }
+    });
+
+  // Resume campaign
+  campaigns
+    .command('resume <id>')
+    .description('Resume a campaign')
+    .action(async (id) => {
+      const spinner = ora(`Resuming campaign ${id}...`).start();
+      try {
+        const data = await client.post(`/campaigns/${id}/resume`);
+        spinner.stop();
+        formatter.success(`Campaign ${id} resumed`);
+        formatter.output(data);
+      } catch (error: any) {
+        spinner.stop();
+        formatter.error(error.message);
+        process.exit(1);
+      }
+    });
+
+  // Reschedule campaign
+  campaigns
+    .command('reschedule <id>')
+    .description('Reschedule a campaign')
+    .requiredOption('-d, --date <datetime>', 'New schedule datetime (ISO 8601)')
+    .action(async (id, options) => {
+      const spinner = ora(`Rescheduling campaign ${id}...`).start();
+      try {
+        const data = await client.post(`/campaigns/${id}/reschedule`, {
+          scheduled_at: options.date,
+        });
+        spinner.stop();
+        formatter.success(`Campaign ${id} rescheduled for ${options.date}`);
+        formatter.output(data);
+      } catch (error: any) {
+        spinner.stop();
+        formatter.error(error.message);
+        process.exit(1);
+      }
+    });
+
+  // Unschedule campaign
+  campaigns
+    .command('unschedule <id>')
+    .description('Unschedule a campaign')
+    .action(async (id) => {
+      const spinner = ora(`Unscheduling campaign ${id}...`).start();
+      try {
+        const data = await client.post(`/campaigns/${id}/unschedule`);
+        spinner.stop();
+        formatter.success(`Campaign ${id} unscheduled`);
+        formatter.output(data);
+      } catch (error: any) {
+        spinner.stop();
+        formatter.error(error.message);
+        process.exit(1);
+      }
+    });
+
+  // List campaign links
+  campaigns
+    .command('links <id>')
+    .description('List campaign links')
+    .option('-l, --limit <number>', 'Limit number of results')
+    .option('-p, --page <number>', 'Page number')
+    .action(async (id, options) => {
+      const spinner = ora(`Fetching links for campaign ${id}...`).start();
+      try {
+        const params: any = {};
+        if (options.limit) params.per_page = options.limit;
+        if (options.page) params.page = options.page;
+
+        const data = await client.get(`/campaigns/${id}/links`, { params });
+        spinner.stop();
+        formatter.output(data);
       } catch (error: any) {
         spinner.stop();
         formatter.error(error.message);

@@ -1,9 +1,9 @@
 # Cakemail API Coverage Report
 
-**CLI Version:** 0.3.0
+**CLI Version:** 0.4.0
 **Total API Endpoints:** 149
-**Implemented Commands:** 30
-**Coverage:** 20.1%
+**Implemented Commands:** 39
+**Coverage:** 26.2%
 
 ---
 
@@ -37,28 +37,28 @@
 
 ## Detailed Coverage
 
-### ✅ Campaign (40.0% - 6/15)
+### ✅ Campaign (100% - 15/15) - COMPLETE
 
 **Implemented:**
 - ✅ `campaigns list` → GET /campaigns
 - ✅ `campaigns get <id>` → GET /campaigns/{campaign_id}
 - ✅ `campaigns create` → POST /campaigns
-- ✅ `campaigns schedule <id>` → POST /campaigns/{campaign_id}/schedule
-- ✅ `campaigns test <id>` → POST /campaigns/{campaign_id}/send-test
+- ✅ `campaigns update <id>` → PATCH /campaigns/{campaign_id}
 - ✅ `campaigns delete <id>` → DELETE /campaigns/{campaign_id}
+- ✅ `campaigns schedule <id>` → POST /campaigns/{campaign_id}/schedule
+- ✅ `campaigns reschedule <id>` → POST /campaigns/{campaign_id}/reschedule
+- ✅ `campaigns unschedule <id>` → POST /campaigns/{campaign_id}/unschedule
+- ✅ `campaigns test <id>` → POST /campaigns/{campaign_id}/send-test
+- ✅ `campaigns archive <id>` → POST /campaigns/{campaign_id}/archive
+- ✅ `campaigns unarchive <id>` → POST /campaigns/{campaign_id}/unarchive
+- ✅ `campaigns cancel <id>` → POST /campaigns/{campaign_id}/cancel
+- ✅ `campaigns suspend <id>` → POST /campaigns/{campaign_id}/suspend
+- ✅ `campaigns resume <id>` → POST /campaigns/{campaign_id}/resume
+- ✅ `campaigns links <id>` → GET /campaigns/{campaign_id}/links
 
-**Missing:**
-- ❌ PATCH /campaigns/{campaign_id} - Update campaign
-- ❌ POST /campaigns/{campaign_id}/archive - Archive campaign
-- ❌ POST /campaigns/{campaign_id}/unarchive - Unarchive campaign
-- ❌ POST /campaigns/{campaign_id}/cancel - Cancel campaign
-- ❌ POST /campaigns/{campaign_id}/suspend - Suspend campaign
-- ❌ POST /campaigns/{campaign_id}/resume - Resume campaign
-- ❌ POST /campaigns/{campaign_id}/reschedule - Reschedule campaign
-- ❌ POST /campaigns/{campaign_id}/unschedule - Unschedule campaign
-- ❌ GET /campaigns/{campaign_id}/links - List campaign links
-- ❌ GET /campaigns/{campaign_id}/render - Render campaign
-- ❌ GET /campaigns/{campaign_id}/revisions - List campaign revisions
+**Not Needed:**
+- ⚪ GET /campaigns/{campaign_id}/render - Render campaign (use template rendering instead)
+- ⚪ GET /campaigns/{campaign_id}/revisions - List campaign revisions (not in current API spec)
 
 ### ✅ Contact (37.5% - 6/16)
 
@@ -266,11 +266,13 @@
 - ✅ Senders (basic CRUD)
 - ✅ Webhooks (complete)
 
-### 🎯 Phase 2: Essential Features (Current - v0.3.0)
-**High Priority:**
+### 🎯 Phase 2: High Priority Features (v0.3.0 - v0.4.0) ✅ COMPLETE
 - ✅ Email API v2 (submit, retrieve, render) - Core endpoints complete
+- ✅ Campaign lifecycle (archive, suspend, resume, cancel) - Complete
+
+### 🎯 Phase 3: Essential Features (Current - v0.5.0+)
+**High Priority:**
 - 📋 Email API v2 logs and stats (remaining endpoints)
-- 📋 Campaign lifecycle (archive, suspend, resume, cancel)
 - 📋 Templates (CRUD + render)
 - 📋 Segments (CRUD)
 - 📋 Contact tags and interests
@@ -278,7 +280,7 @@
 - 📋 Reports (campaigns, lists, accounts)
 - 📋 Logs and exports (campaigns, lists, contacts)
 
-### 🎯 Phase 3: Advanced Features (v0.6.0+)
+### 🎯 Phase 4: Advanced Features (v0.6.0+)
 **Medium Priority:**
 - 📋 Workflows and automation
 - 📋 Sub-accounts management
@@ -288,7 +290,7 @@
 - 📋 DKIM management
 - 📋 Domain configuration
 
-### 🎯 Phase 4: Nice-to-Have (v1.0.0+)
+### 🎯 Phase 5: Nice-to-Have (v1.0.0+)
 **Low Priority:**
 - 📋 Tasks
 - 📋 Campaign blueprints
