@@ -2,8 +2,8 @@
 
 import { Command } from 'commander';
 import { CakemailClient } from './client.js';
-import { OutputFormatter, OutputFormat } from './utils/output.js';
-import { getConfig } from './utils/config.js';
+import { OutputFormatter } from './utils/output.js';
+import { getConfig, OutputFormat } from './utils/config.js';
 import { createCampaignsCommand } from './commands/campaigns.js';
 import { createListsCommand } from './commands/lists.js';
 import { createContactsCommand } from './commands/contacts.js';
@@ -19,8 +19,8 @@ async function main() {
   program
     .name('cakemail')
     .description('Official Cakemail CLI - Command-line interface for the Cakemail API')
-    .version('0.6.2')
-    .option('-f, --format <format>', 'Output format (json|table|compact)', 'json')
+    .version('0.7.0')
+    .option('-f, --format <format>', 'Output format (json|table|compact)')
     .option('--access-token <token>', 'Cakemail access token (overrides env)')
     .option('--email <email>', 'Cakemail account email (overrides env)')
     .option('--password <password>', 'Cakemail account password (overrides env)');
@@ -38,7 +38,9 @@ async function main() {
       if (opts.accessToken) config.accessToken = opts.accessToken;
       if (opts.email) config.email = opts.email;
       if (opts.password) config.password = opts.password;
-      return opts.format as OutputFormat || 'json';
+
+      // Priority: CLI flag > env var > default
+      return (opts.format as OutputFormat) || config.outputFormat || 'json';
     });
 
     // Add commands

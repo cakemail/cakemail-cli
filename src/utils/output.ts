@@ -1,7 +1,6 @@
 import Table from 'cli-table3';
 import chalk from 'chalk';
-
-export type OutputFormat = 'json' | 'table' | 'compact';
+import { OutputFormat } from './config.js';
 
 export class OutputFormatter {
   private formatGetter: () => OutputFormat;

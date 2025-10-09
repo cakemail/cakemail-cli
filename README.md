@@ -19,19 +19,31 @@ npx @cakemail-org/cli --help
 Set your Cakemail credentials using environment variables:
 
 ```bash
-# Option 1: Use API token
-export CAKEMAIL_API_KEY=your_api_token
+# Option 1: Use access token
+export CAKEMAIL_ACCESS_TOKEN=your_access_token
 
 # Option 2: Use email/password
 export CAKEMAIL_EMAIL=your@email.com
 export CAKEMAIL_PASSWORD=your_password
+
+# Optional: Set default output format
+export CAKEMAIL_OUTPUT_FORMAT=compact  # json, table, or compact
 ```
 
-Or create a `.env` file:
+Or create a `.env` file in your project directory:
 
 ```bash
-cp .env.example .env
-# Edit .env with your credentials
+# Authentication (choose one method)
+CAKEMAIL_EMAIL=your@email.com
+CAKEMAIL_PASSWORD=your_password
+# OR
+# CAKEMAIL_ACCESS_TOKEN=your_access_token
+
+# Optional: Default output format (json, table, compact)
+CAKEMAIL_OUTPUT_FORMAT=compact
+
+# Optional: API base URL (defaults to https://api.cakemail.dev)
+# CAKEMAIL_API_BASE=https://api.cakemail.dev
 ```
 
 ## Usage
@@ -49,7 +61,9 @@ cakemail [options] <command>
 
 ### Output Formats
 
-The CLI supports three output formats:
+The CLI supports three output formats. You can set a default in your `.env` file with `CAKEMAIL_OUTPUT_FORMAT` or override it per-command with the `-f` flag.
+
+**Priority:** CLI flag (`-f`) > Environment variable (`CAKEMAIL_OUTPUT_FORMAT`) > Default (`json`)
 
 **JSON** (default) - Full structured data output:
 ```bash
@@ -67,6 +81,16 @@ cakemail -f table templates list
 ```bash
 cakemail -f compact lists list
 cakemail -f compact contacts list 123
+```
+
+**Set a default format:**
+```bash
+# In your .env file
+CAKEMAIL_OUTPUT_FORMAT=compact
+
+# Now all commands use compact by default
+cakemail campaigns list         # Uses compact
+cakemail -f json campaigns list # Override to JSON
 ```
 
 ### Commands
