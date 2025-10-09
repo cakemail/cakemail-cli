@@ -10,6 +10,7 @@ import { createContactsCommand } from './commands/contacts.js';
 import { createSendersCommand } from './commands/senders.js';
 import { createWebhooksCommand } from './commands/webhooks.js';
 import { createEmailsCommand } from './commands/emails.js';
+import { createTemplatesCommand } from './commands/templates.js';
 import chalk from 'chalk';
 
 async function main() {
@@ -18,7 +19,7 @@ async function main() {
   program
     .name('cakemail')
     .description('Official Cakemail CLI - Command-line interface for the Cakemail API')
-    .version('0.4.0')
+    .version('0.5.0')
     .option('-f, --format <format>', 'Output format (json|table|compact)', 'json')
     .option('--access-token <token>', 'Cakemail access token (overrides env)')
     .option('--email <email>', 'Cakemail account email (overrides env)')
@@ -46,6 +47,7 @@ async function main() {
     program.addCommand(createSendersCommand(client, formatter));
     program.addCommand(createWebhooksCommand(client, formatter));
     program.addCommand(createEmailsCommand(client, formatter));
+    program.addCommand(createTemplatesCommand(client, formatter));
 
     // Parse
     await program.parseAsync(process.argv);

@@ -1,9 +1,9 @@
 # Cakemail API Coverage Report
 
-**CLI Version:** 0.4.0
+**CLI Version:** 0.5.0
 **Total API Endpoints:** 149
-**Implemented Commands:** 39
-**Coverage:** 26.2%
+**Implemented Commands:** 45
+**Coverage:** 30.2%
 
 ---
 
@@ -147,15 +147,15 @@
 - ⚪ GET /email-group-ids - List email group IDs
 - ⚪ PATCH /email-group-ids/{group_id} - Edit email group ID
 
-### ❌ Template (0% - 0/6)
+### ✅ Template (100% - 6/6) - COMPLETE
 
-**Missing:**
-- ❌ GET /templates - List templates
-- ❌ POST /templates - Create template
-- ❌ GET /templates/{template_id} - Get template
-- ❌ PATCH /templates/{template_id} - Update template
-- ❌ DELETE /templates/{template_id} - Delete template
-- ❌ GET /templates/{template_id}/render - Render template
+**Implemented:**
+- ✅ `templates list` → GET /templates - List templates
+- ✅ `templates create` → POST /templates - Create template
+- ✅ `templates get <id>` → GET /templates/{template_id} - Get template
+- ✅ `templates update <id>` → PATCH /templates/{template_id} - Update template
+- ✅ `templates delete <id>` → DELETE /templates/{template_id} - Delete template
+- ✅ `templates render <id>` → GET /templates/{template_id}/render - Render template
 
 ### ❌ Workflow (0% - 0/14)
 
@@ -266,21 +266,21 @@
 - ✅ Senders (basic CRUD)
 - ✅ Webhooks (complete)
 
-### 🎯 Phase 2: High Priority Features (v0.3.0 - v0.4.0) ✅ COMPLETE
+### 🎯 Phase 2: High Priority Features (v0.3.0 - v0.5.0) ✅ COMPLETE
 - ✅ Email API v2 (submit, retrieve, render) - Core endpoints complete
 - ✅ Campaign lifecycle (archive, suspend, resume, cancel) - Complete
+- ✅ Templates (CRUD + render) - Complete
 
-### 🎯 Phase 3: Essential Features (Current - v0.5.0+)
+### 🎯 Phase 3: Essential Features (Current - v0.6.0+)
 **High Priority:**
 - 📋 Email API v2 logs and stats (remaining endpoints)
-- 📋 Templates (CRUD + render)
 - 📋 Segments (CRUD)
 - 📋 Contact tags and interests
 - 📋 Custom attributes
 - 📋 Reports (campaigns, lists, accounts)
 - 📋 Logs and exports (campaigns, lists, contacts)
 
-### 🎯 Phase 4: Advanced Features (v0.6.0+)
+### 🎯 Phase 4: Advanced Features (v0.7.0+)
 **Medium Priority:**
 - 📋 Workflows and automation
 - 📋 Sub-accounts management

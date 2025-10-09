@@ -87,6 +87,46 @@ cakemail emails render <email-id>
 cakemail emails render <email-id> --as-submitted --tracking
 ```
 
+#### Templates
+
+```bash
+# List all templates
+cakemail templates list [options]
+  -l, --limit <number>    Limit results
+  -p, --page <number>     Page number
+  -f, --filter <filter>   Filter (e.g., "name==Newsletter")
+  -s, --sort <sort>       Sort (e.g., "+name", "-created_on")
+
+# Get template details
+cakemail templates get <id>
+
+# Create a template
+cakemail templates create -n "My Template" --html-file template.html
+  -n, --name <name>         Template name (required)
+  --html <html>             HTML content
+  --html-file <path>        Path to HTML file
+  --text <text>             Plain text content
+  --text-file <path>        Path to text file
+  --subject <subject>       Default email subject
+  --tags <tags>             Comma-separated tags
+
+# Update a template
+cakemail templates update <id> [options]
+  -n, --name <name>         Template name
+  --html <html>             HTML content
+  --html-file <path>        Path to HTML file
+  --text <text>             Plain text content
+  --text-file <path>        Path to text file
+  --subject <subject>       Default email subject
+  --tags <tags>             Comma-separated tags
+
+# Render a template
+cakemail templates render <id>
+
+# Delete template
+cakemail templates delete <id> --force
+```
+
 #### Campaigns
 
 ```bash
@@ -256,6 +296,13 @@ cakemail webhooks unarchive <id>
 ## Examples
 
 ```bash
+# Create a template
+cakemail templates create \
+  -n "Newsletter Template" \
+  --html-file templates/newsletter.html \
+  --subject "Weekly Newsletter" \
+  --tags "newsletter,weekly"
+
 # Send a transactional email
 cakemail emails send \
   -t customer@example.com \
