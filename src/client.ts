@@ -68,12 +68,13 @@ export class CakemailClient {
 
     try {
       // OAuth2 Password Grant requires application/x-www-form-urlencoded
+      // URLSearchParams will automatically encode special characters like +
       const params = new URLSearchParams();
       params.append('grant_type', 'password');
       params.append('username', this.config.email);
       params.append('password', this.config.password);
 
-      const response = await axios.post(`${this.client.defaults.baseURL}/token`, params, {
+      const response = await axios.post(`${this.client.defaults.baseURL}/token`, params.toString(), {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
@@ -82,7 +83,16 @@ export class CakemailClient {
       this.accessToken = response.data.access_token;
       this.refreshToken = response.data.refresh_token;
     } catch (error: any) {
-      throw new Error(`Authentication failed: ${error.response?.data?.message || error.message}`);
+      const detail = error.response?.data?.detail;
+      const message = error.response?.data?.message || error.message;
+
+      // Show more helpful error for common issues
+      if (detail && Array.isArray(detail)) {
+        const errors = detail.map((e: any) => `${e.loc.join('.')}: ${e.msg}`).join(', ');
+        throw new Error(`Authentication failed: ${errors}`);
+      }
+
+      throw new Error(`Authentication failed: ${message}`);
     }
   }
 
