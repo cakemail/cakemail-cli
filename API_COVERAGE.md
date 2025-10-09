@@ -1,9 +1,9 @@
 # Cakemail API Coverage Report
 
-**CLI Version:** 0.2.0
+**CLI Version:** 0.3.0
 **Total API Endpoints:** 149
-**Implemented Commands:** 27
-**Coverage:** 18.1%
+**Implemented Commands:** 30
+**Coverage:** 20.1%
 
 ---
 
@@ -16,7 +16,7 @@
 | **List** | 11 | 4 | 36.4% | ✅ High |
 | **Webhook** | 6 | 6 | 100% | ✅ Complete |
 | **Sender** | 7 | 4 | 57.1% | ✅ High |
-| **Transactional Email** | 12 | 0 | 0% | 🔶 Medium |
+| **Transactional Email** | 12 | 0 | 0% | ⚪ Out of Scope |
 | **Template** | 6 | 0 | 0% | 🔶 Medium |
 | **Workflow** | 14 | 0 | 0% | 🔶 Medium |
 | **Report** | 11 | 0 | 0% | 🔶 Medium |
@@ -28,9 +28,9 @@
 | **Form** | 5 | 0 | 0% | 🔵 Low |
 | **Tags** | 5 | 0 | 0% | 🔶 Medium |
 | **Suppressed Email** | 5 | 0 | 0% | 🔵 Low |
-| **Log** | 10 | 0 | 0% | 🔵 Low |
+| **Log** | 10 | 0 | 0% | 🔶 Medium |
 | **Task** | 3 | 0 | 0% | 🔵 Low |
-| **Email API** | 4 | 0 | 0% | 🔶 Medium |
+| **Email API** | 4 | 0 | 0% | ✅ High |
 | **Other** | 10 | 1 | 10% | 🔵 Low |
 
 ---
@@ -128,22 +128,24 @@
 - ❌ POST /brands/default/senders/confirm-email - Confirm sender email
 - ❌ POST /brands/default/senders/{sender_id}/resend-confirmation-email - Resend confirmation
 
-### ❌ Transactional Email (0% - 0/12)
+### ⚪ Transactional Email (0% - 0/12) - OUT OF SCOPE
 
-**Missing:**
-- ❌ POST /emails - Send transactional email
-- ❌ GET /logs/emails - Show email activity logs
-- ❌ GET /reports/emails - Show email stats
-- ❌ GET /lists/{list_id}/transactional-email-templates - List templates
-- ❌ POST /lists/{list_id}/transactional-email-templates - Create template
-- ❌ GET /lists/{list_id}/transactional-email-templates/{id} - Get template
-- ❌ PATCH /lists/{list_id}/transactional-email-templates/{id} - Update template
-- ❌ DELETE /lists/{list_id}/transactional-email-templates/{id} - Delete template
-- ❌ POST /lists/{list_id}/transactional-email-templates/{id}/render - Render template
-- ❌ POST /lists/{list_id}/transactional-email-templates/{id}/send - Send from template
-- ❌ POST /lists/{list_id}/transactional-email-templates/{id}/send-test - Send test
-- ❌ GET /email-group-ids - List email group IDs
-- ❌ PATCH /email-group-ids/{group_id} - Edit email group ID
+**Note:** Transactional email endpoints are managed through dedicated workflows and are out of scope for CLI implementation.
+
+**Excluded:**
+- ⚪ POST /emails - Send transactional email
+- ⚪ GET /logs/emails - Show email activity logs
+- ⚪ GET /reports/emails - Show email stats
+- ⚪ GET /lists/{list_id}/transactional-email-templates - List templates
+- ⚪ POST /lists/{list_id}/transactional-email-templates - Create template
+- ⚪ GET /lists/{list_id}/transactional-email-templates/{id} - Get template
+- ⚪ PATCH /lists/{list_id}/transactional-email-templates/{id} - Update template
+- ⚪ DELETE /lists/{list_id}/transactional-email-templates/{id} - Delete template
+- ⚪ POST /lists/{list_id}/transactional-email-templates/{id}/render - Render template
+- ⚪ POST /lists/{list_id}/transactional-email-templates/{id}/send - Send from template
+- ⚪ POST /lists/{list_id}/transactional-email-templates/{id}/send-test - Send test
+- ⚪ GET /email-group-ids - List email group IDs
+- ⚪ PATCH /email-group-ids/{group_id} - Edit email group ID
 
 ### ❌ Template (0% - 0/6)
 
@@ -226,26 +228,55 @@
 - ❌ PATCH /tags/{tag} - Edit contact tag
 - ❌ DELETE /tags/{tag} - Delete contact tag
 
+### ✅ Email API v2 (42.9% - 3/7) - HIGH PRIORITY
+
+**Implemented:**
+- ✅ `emails send` → POST /v2/emails - Submit an email
+- ✅ `emails get <email-id>` → GET /v2/emails/{email_id} - Retrieve a submitted email
+- ✅ `emails render <email-id>` → GET /v2/emails/{email_id}/render - Render a submitted email
+
+**Missing:**
+- ❌ GET /v2/logs/emails - Show Email API activity logs
+- ❌ GET /v2/reports/emails - Show Email API statistics
+- ❌ GET /logs/emails-summary - Show Email API activity summary
+- ❌ GET /email-tags - List Email Tags
+
+### ❌ Logs & Exports (0% - 0/10) - MEDIUM PRIORITY
+
+**Missing:**
+- ❌ GET /logs/campaigns/{campaign_id} - Show campaign logs
+- ❌ GET /logs/campaigns/{campaign_id}/exports - List campaign log exports
+- ❌ POST /logs/campaigns/{campaign_id}/exports - Create campaign log export
+- ❌ GET /logs/campaigns/{campaign_id}/exports/{export_id}/download - Download export
+- ❌ GET /logs/lists/{list_id} - Show list logs
+- ❌ GET /logs/lists/{list_id}/exports - List list log exports
+- ❌ POST /logs/lists/{list_id}/exports - Create list log export
+- ❌ GET /logs/lists/{list_id}/exports/{export_id}/download - Download export
+- ❌ GET /logs/workflows/{workflow_id}/actions/{action_id} - Show action logs
+- ❌ GET /email-tags - List email tags
+
 ---
 
 ## Roadmap & Priorities
 
-### 🎯 Phase 1: Core Features (Current - v0.2.0)
+### 🎯 Phase 1: Core Features (v0.1.0 - v0.2.0) ✅ COMPLETE
 - ✅ Campaigns (basic CRUD)
 - ✅ Lists (basic CRUD)
 - ✅ Contacts (basic CRUD)
 - ✅ Senders (basic CRUD)
 - ✅ Webhooks (complete)
 
-### 🎯 Phase 2: Essential Features (v0.3.0 - v0.5.0)
+### 🎯 Phase 2: Essential Features (Current - v0.3.0)
 **High Priority:**
+- ✅ Email API v2 (submit, retrieve, render) - Core endpoints complete
+- 📋 Email API v2 logs and stats (remaining endpoints)
 - 📋 Campaign lifecycle (archive, suspend, resume, cancel)
-- 📋 Transactional emails (send, templates, logs)
 - 📋 Templates (CRUD + render)
 - 📋 Segments (CRUD)
 - 📋 Contact tags and interests
 - 📋 Custom attributes
 - 📋 Reports (campaigns, lists, accounts)
+- 📋 Logs and exports (campaigns, lists, contacts)
 
 ### 🎯 Phase 3: Advanced Features (v0.6.0+)
 **Medium Priority:**
@@ -253,19 +284,21 @@
 - 📋 Sub-accounts management
 - 📋 User management
 - 📋 Forms
-- 📋 Email API v2
 - 📋 Suppressed emails
 - 📋 DKIM management
 - 📋 Domain configuration
 
 ### 🎯 Phase 4: Nice-to-Have (v1.0.0+)
 **Low Priority:**
-- 📋 Logs and exports
 - 📋 Tasks
 - 📋 Campaign blueprints
 - 📋 Workflow blueprints
 - 📋 System emails
 - 📋 MFA management
+
+### ⚪ Out of Scope
+**Not Planned:**
+- ⚪ Transactional Email endpoints (managed through workflows)
 
 ---
 

@@ -50,6 +50,43 @@ cakemail [options] <command>
 
 ### Commands
 
+#### Email API v2
+
+```bash
+# Send an email with HTML content
+cakemail emails send -t recipient@example.com -s "Subject" --html "<h1>Hello</h1>"
+
+# Send an email with HTML file
+cakemail emails send -t recipient@example.com -s "Subject" --html-file email.html
+
+# Send an email using a template
+cakemail emails send -t recipient@example.com -s "Subject" --template-id 123 --params '{"name":"John"}'
+
+# Send with custom sender
+cakemail emails send \
+  -t recipient@example.com \
+  -s "Subject" \
+  --html "<p>Content</p>" \
+  --from-email sender@example.com \
+  --from-name "John Doe" \
+  --reply-to reply@example.com
+
+# Send with tracking and tags
+cakemail emails send \
+  -t recipient@example.com \
+  -s "Subject" \
+  --html "<p>Content</p>" \
+  --tracking \
+  --tags "newsletter,promo"
+
+# Get email details
+cakemail emails get <email-id>
+
+# Render email HTML
+cakemail emails render <email-id>
+cakemail emails render <email-id> --as-submitted --tracking
+```
+
 #### Campaigns
 
 ```bash
@@ -188,6 +225,16 @@ cakemail webhooks unarchive <id>
 ## Examples
 
 ```bash
+# Send a transactional email
+cakemail emails send \
+  -t customer@example.com \
+  -s "Order Confirmation" \
+  --html-file templates/order-confirmation.html \
+  --from-email orders@myshop.com \
+  --from-name "My Shop" \
+  --tracking \
+  --tags "transactional,order"
+
 # List campaigns
 cakemail campaigns list
 
