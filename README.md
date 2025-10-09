@@ -42,11 +42,32 @@ cakemail [options] <command>
 
 ### Global Options
 
+- `-f, --format <format>` - Output format: `json`, `table`, or `compact` (default: `json`)
 - `--access-token <token>` - Override access token from environment
 - `--email <email>` - Override email from environment
 - `--password <password>` - Override password from environment
 
-> **Note:** Output is currently JSON only. Table and compact formats are planned for a future release.
+### Output Formats
+
+The CLI supports three output formats:
+
+**JSON** (default) - Full structured data output:
+```bash
+cakemail campaigns list
+cakemail -f json campaigns list
+```
+
+**Table** - Formatted table view with key fields:
+```bash
+cakemail -f table campaigns list
+cakemail -f table templates list
+```
+
+**Compact** - One-line summary per item:
+```bash
+cakemail -f compact lists list
+cakemail -f compact contacts list 123
+```
 
 ### Commands
 
@@ -319,8 +340,11 @@ cakemail campaigns suspend 123
 cakemail campaigns resume 123
 cakemail campaigns cancel 123
 
-# List campaigns
-cakemail campaigns list
+# List campaigns in table format
+cakemail -f table campaigns list
+
+# List campaigns in compact format
+cakemail -f compact campaigns list
 
 # Create a new list
 cakemail lists create -n "Newsletter Subscribers" -l en

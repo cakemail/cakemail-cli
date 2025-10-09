@@ -4,10 +4,22 @@ import chalk from 'chalk';
 export type OutputFormat = 'json' | 'table' | 'compact';
 
 export class OutputFormatter {
-  constructor(private format: OutputFormat = 'json') {}
+  private formatGetter: () => OutputFormat;
+
+  constructor(formatOrGetter: OutputFormat | (() => OutputFormat) = 'json') {
+    if (typeof formatOrGetter === 'function') {
+      this.formatGetter = formatOrGetter;
+    } else {
+      this.formatGetter = () => formatOrGetter;
+    }
+  }
+
+  private getFormat(): OutputFormat {
+    return this.formatGetter();
+  }
 
   output(data: any, fields?: string[]): void {
-    switch (this.format) {
+    switch (this.getFormat()) {
       case 'json':
         console.log(JSON.stringify(data, null, 2));
         break;
@@ -38,41 +50,130 @@ export class OutputFormatter {
       return;
     }
 
-    const items = Array.isArray(data) ? data : [data];
+    // Handle paginated responses with 'data' property
+    let items = data;
+    if (data.data && Array.isArray(data.data)) {
+      items = data.data;
+      // Show pagination info if available
+      if (data.count !== undefined) {
+        console.log(chalk.gray(`Total: ${data.count} items`));
+      }
+    }
+
+    // Ensure we have an array
+    items = Array.isArray(items) ? items : [items];
+
     if (items.length === 0) {
       console.log('No results');
       return;
     }
 
-    const keys = fields || Object.keys(items[0]);
+    // Determine which fields to show
+    const keys = fields || this.getDisplayFields(items[0]);
+
     const table = new Table({
       head: keys.map(k => chalk.cyan(k)),
+      style: {
+        head: [],
+        border: ['gray']
+      }
     });
 
-    items.forEach(item => {
+    items.forEach((item: any) => {
       table.push(keys.map(k => this.formatValue(item[k])));
     });
 
     console.log(table.toString());
   }
 
+  private getDisplayFields(item: any): string[] {
+    // Common important fields to show first
+    const priorityFields = ['id', 'name', 'email', 'status', 'subject', 'created_on', 'updated_on'];
+    const allKeys = Object.keys(item);
+
+    // Filter out nested objects and arrays for table display
+    const simpleKeys = allKeys.filter(key => {
+      const value = item[key];
+      return typeof value !== 'object' || value === null;
+    });
+
+    // Sort: priority fields first, then alphabetically
+    return simpleKeys.sort((a, b) => {
+      const aIndex = priorityFields.indexOf(a);
+      const bIndex = priorityFields.indexOf(b);
+
+      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+      if (aIndex !== -1) return -1;
+      if (bIndex !== -1) return 1;
+      return a.localeCompare(b);
+    });
+  }
+
   private outputCompact(data: any): void {
-    if (Array.isArray(data)) {
-      data.forEach(item => {
+    // Handle paginated responses with 'data' property
+    let items = data;
+    if (data.data && Array.isArray(data.data)) {
+      items = data.data;
+      // Show pagination info if available
+      if (data.count !== undefined) {
+        console.log(chalk.gray(`Total: ${data.count} items\n`));
+      }
+    }
+
+    if (Array.isArray(items)) {
+      items.forEach(item => {
+        // Try different common field combinations
         if (item.id && item.name) {
-          console.log(`${chalk.yellow(item.id)}: ${item.name}`);
+          console.log(`${chalk.yellow(item.id.toString().padStart(6))} ${chalk.white('│')} ${chalk.bold(item.name)}${item.status ? chalk.gray(` (${item.status})`) : ''}`);
+        } else if (item.id && item.email) {
+          console.log(`${chalk.yellow(item.id.toString().padStart(6))} ${chalk.white('│')} ${chalk.bold(item.email)}${item.status ? chalk.gray(` (${item.status})`) : ''}`);
+        } else if (item.id && item.subject) {
+          console.log(`${chalk.yellow(item.id.toString().padStart(6))} ${chalk.white('│')} ${chalk.bold(item.subject)}${item.status ? chalk.gray(` (${item.status})`) : ''}`);
+        } else if (item.id) {
+          console.log(`${chalk.yellow(item.id.toString().padStart(6))} ${chalk.white('│')} ${this.compactObjectSummary(item)}`);
         } else {
-          console.log(this.formatValue(item));
+          console.log(this.compactObjectSummary(item));
         }
       });
+    } else if (typeof items === 'object' && items !== null) {
+      // Single object
+      Object.entries(items).forEach(([key, value]) => {
+        console.log(`${chalk.cyan(key.padEnd(20))} ${chalk.white('│')} ${this.formatValue(value)}`);
+      });
     } else {
-      console.log(this.formatValue(data));
+      console.log(this.formatValue(items));
     }
   }
 
+  private compactObjectSummary(obj: any): string {
+    // Create a compact one-line summary of an object
+    const parts: string[] = [];
+    const excludeKeys = ['id']; // Already shown
+
+    Object.entries(obj).forEach(([key, value]) => {
+      if (excludeKeys.includes(key)) return;
+      if (value === null || value === undefined) return;
+      if (typeof value === 'object') return; // Skip nested objects
+
+      if (['name', 'email', 'subject'].includes(key)) {
+        parts.unshift(chalk.bold(String(value)));
+      } else if (key === 'status') {
+        parts.push(chalk.gray(`(${value})`));
+      } else if (typeof value === 'string' && value.length < 50) {
+        parts.push(`${key}: ${value}`);
+      }
+    });
+
+    return parts.join(' ');
+  }
+
   private formatValue(value: any): string {
-    if (value === null || value === undefined) return '';
-    if (typeof value === 'object') return JSON.stringify(value);
+    if (value === null || value === undefined) return chalk.gray('null');
+    if (typeof value === 'boolean') return value ? chalk.green('true') : chalk.red('false');
+    if (typeof value === 'object') {
+      const str = JSON.stringify(value);
+      return str.length > 100 ? str.substring(0, 97) + '...' : str;
+    }
     return String(value);
   }
 }

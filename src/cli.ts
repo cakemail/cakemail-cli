@@ -19,7 +19,7 @@ async function main() {
   program
     .name('cakemail')
     .description('Official Cakemail CLI - Command-line interface for the Cakemail API')
-    .version('0.5.0')
+    .version('0.6.0')
     .option('-f, --format <format>', 'Output format (json|table|compact)', 'json')
     .option('--access-token <token>', 'Cakemail access token (overrides env)')
     .option('--email <email>', 'Cakemail account email (overrides env)')
@@ -27,18 +27,19 @@ async function main() {
 
   try {
     // Get config (don't require credentials for help/version)
-    const options = program.opts();
     const config = getConfig(false);
 
-    // Override with CLI options
-    if (options.accessToken) config.accessToken = options.accessToken;
-    if (options.email) config.email = options.email;
-    if (options.password) config.password = options.password;
-
-    // Create client and formatter
+    // Create client and formatter with lazy format evaluation
     // Client will fail on first API call if credentials are missing
     const client = new CakemailClient(config);
-    const formatter = new OutputFormatter(options.format as OutputFormat);
+    const formatter = new OutputFormatter(() => {
+      const opts = program.opts();
+      // Override config with CLI options
+      if (opts.accessToken) config.accessToken = opts.accessToken;
+      if (opts.email) config.email = opts.email;
+      if (opts.password) config.password = opts.password;
+      return opts.format as OutputFormat || 'json';
+    });
 
     // Add commands
     program.addCommand(createCampaignsCommand(client, formatter));
