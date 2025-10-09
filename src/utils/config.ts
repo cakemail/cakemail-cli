@@ -1,5 +1,8 @@
-import 'dotenv/config';
+import { config } from 'dotenv';
 import { CakemailConfig } from '../client.js';
+
+// Load .env from current working directory
+config({ path: process.cwd() + '/.env' });
 
 export function getConfig(required: boolean = true): CakemailConfig {
   const accessToken = process.env.CAKEMAIL_ACCESS_TOKEN;
