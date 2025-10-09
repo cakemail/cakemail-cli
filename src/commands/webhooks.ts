@@ -17,10 +17,10 @@ export function createWebhooksCommand(client: CakemailClient, formatter: OutputF
       const spinner = ora('Fetching webhooks...').start();
       try {
         const params: any = {};
-        if (options.limit) params.per_page = options.limit;
-        if (options.page) params.page = options.page;
+        if (options.limit) params.per_page = parseInt(options.limit);
+        if (options.page) params.page = parseInt(options.page);
 
-        const data = await client.get('/webhooks', { params });
+        const data = await client.sdk.webhooks.list(params);
         spinner.stop();
         formatter.output(data);
       } catch (error: any) {
@@ -37,7 +37,7 @@ export function createWebhooksCommand(client: CakemailClient, formatter: OutputF
     .action(async (id) => {
       const spinner = ora(`Fetching webhook ${id}...`).start();
       try {
-        const data = await client.get(`/webhooks/${id}`);
+        const data = await client.sdk.webhooks.get(parseInt(id));
         spinner.stop();
         formatter.output(data);
       } catch (error: any) {
@@ -65,7 +65,7 @@ export function createWebhooksCommand(client: CakemailClient, formatter: OutputF
         if (options.name) payload.name = options.name;
         if (options.secret) payload.secret = options.secret;
 
-        const data = await client.post('/webhooks', payload);
+        const data = await client.sdk.webhooks.create(payload);
         spinner.stop();
         formatter.success(`Webhook created: ${data.id}`);
         formatter.output(data);
@@ -93,7 +93,7 @@ export function createWebhooksCommand(client: CakemailClient, formatter: OutputF
         if (options.name) payload.name = options.name;
         if (options.secret) payload.secret = options.secret;
 
-        const data = await client.patch(`/webhooks/${id}`, payload);
+        const data = await client.sdk.webhooks.update(parseInt(id), payload);
         spinner.stop();
         formatter.success(`Webhook ${id} updated`);
         formatter.output(data);
@@ -111,7 +111,7 @@ export function createWebhooksCommand(client: CakemailClient, formatter: OutputF
     .action(async (id) => {
       const spinner = ora(`Archiving webhook ${id}...`).start();
       try {
-        await client.post(`/webhooks/${id}/archive`);
+        await client.sdk.webhooks.archive(parseInt(id));
         spinner.stop();
         formatter.success(`Webhook ${id} archived`);
       } catch (error: any) {
@@ -128,7 +128,7 @@ export function createWebhooksCommand(client: CakemailClient, formatter: OutputF
     .action(async (id) => {
       const spinner = ora(`Unarchiving webhook ${id}...`).start();
       try {
-        await client.post(`/webhooks/${id}/unarchive`);
+        await client.sdk.webhooks.unarchive(parseInt(id));
         spinner.stop();
         formatter.success(`Webhook ${id} unarchived`);
       } catch (error: any) {

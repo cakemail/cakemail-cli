@@ -135,9 +135,36 @@ export class OutputFormatter {
         }
       });
     } else if (typeof items === 'object' && items !== null) {
-      // Single object
-      Object.entries(items).forEach(([key, value]) => {
-        console.log(`${chalk.cyan(key.padEnd(20))} ${chalk.white('│')} ${this.formatValue(value)}`);
+      // Single object - show key details in a compact card format
+      const obj = items;
+
+      // Header with ID and name/email/subject
+      if (obj.id && obj.name) {
+        console.log(`${chalk.yellow(obj.id.toString())} ${chalk.white('│')} ${chalk.bold(obj.name)}${obj.status ? chalk.gray(` (${obj.status})`) : ''}`);
+      } else if (obj.id && obj.email) {
+        console.log(`${chalk.yellow(obj.id.toString())} ${chalk.white('│')} ${chalk.bold(obj.email)}${obj.status ? chalk.gray(` (${obj.status})`) : ''}`);
+      } else if (obj.id && obj.subject) {
+        console.log(`${chalk.yellow(obj.id.toString())} ${chalk.white('│')} ${chalk.bold(obj.subject)}${obj.status ? chalk.gray(` (${obj.status})`) : ''}`);
+      } else if (obj.id) {
+        console.log(`${chalk.yellow(obj.id.toString())} ${chalk.white('│')} ${chalk.bold('Details')}`);
+      }
+
+      // Show other important fields
+      const importantFields = ['created_on', 'updated_on', 'scheduled_for', 'type', 'language'];
+      const shownFields = new Set(['id', 'name', 'email', 'subject', 'status']);
+
+      Object.entries(obj).forEach(([key, value]) => {
+        if (shownFields.has(key)) return;
+        if (value === null || value === undefined) return;
+
+        // Show important fields or simple values
+        if (importantFields.includes(key) || (typeof value !== 'object' && typeof value !== 'function')) {
+          if (typeof value === 'object') {
+            // Skip nested objects in compact view
+            return;
+          }
+          console.log(`  ${chalk.gray(key.padEnd(18))} ${chalk.white('│')} ${this.formatValue(value)}`);
+        }
       });
     } else {
       console.log(this.formatValue(items));

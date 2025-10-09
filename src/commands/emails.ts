@@ -48,7 +48,7 @@ export function createEmailsCommand(client: CakemailClient, formatter: OutputFor
 
         // Content
         if (options.templateId) {
-          payload.template_id = options.templateId;
+          payload.template_id = parseInt(options.templateId);
           if (options.params) {
             payload.params = JSON.parse(options.params);
           }
@@ -94,7 +94,7 @@ export function createEmailsCommand(client: CakemailClient, formatter: OutputFor
           payload.attachments = JSON.parse(options.attachments);
         }
 
-        const data = await client.post('/v2/emails', payload);
+        const data = await client.sdk.email.submit(payload);
         spinner.stop();
         formatter.success(`Email submitted: ${data.id}`);
         formatter.output(data);
@@ -112,7 +112,7 @@ export function createEmailsCommand(client: CakemailClient, formatter: OutputFor
     .action(async (emailId) => {
       const spinner = ora(`Fetching email ${emailId}...`).start();
       try {
-        const data = await client.get(`/v2/emails/${emailId}`);
+        const data = await client.sdk.email.retrieve(emailId);
         spinner.stop();
         formatter.output(data);
       } catch (error: any) {
@@ -135,7 +135,7 @@ export function createEmailsCommand(client: CakemailClient, formatter: OutputFor
         if (options.asSubmitted !== undefined) params.as_submitted = options.asSubmitted;
         if (options.tracking !== undefined) params.tracking = options.tracking;
 
-        const data = await client.get(`/v2/emails/${emailId}/render`, { params });
+        const data = await client.sdk.email.render(emailId, params);
         spinner.stop();
 
         // Output raw HTML (not JSON)

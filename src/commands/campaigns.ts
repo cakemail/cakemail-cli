@@ -14,15 +14,19 @@ export function createCampaignsCommand(client: CakemailClient, formatter: Output
     .option('-s, --status <status>', 'Filter by status')
     .option('-l, --limit <number>', 'Limit number of results')
     .option('-p, --page <number>', 'Page number')
+    .option('--sort <sort>', 'Sort by field: +name, -created_on, +scheduled_for, etc.')
+    .option('--filter <filter>', 'Filter (e.g., "status==delivered;name==Newsletter")')
     .action(async (options) => {
       const spinner = ora('Fetching campaigns...').start();
       try {
         const params: any = {};
         if (options.status) params.status = options.status;
-        if (options.limit) params.per_page = options.limit;
-        if (options.page) params.page = options.page;
+        if (options.limit) params.per_page = parseInt(options.limit);
+        if (options.page) params.page = parseInt(options.page);
+        if (options.sort) params.sort = options.sort;
+        if (options.filter) params.filter = options.filter;
 
-        const data = await client.get('/campaigns', { params });
+        const data = await client.sdk.campaigns.list(params);
         spinner.stop();
         formatter.output(data);
       } catch (error: any) {
@@ -39,7 +43,7 @@ export function createCampaignsCommand(client: CakemailClient, formatter: Output
     .action(async (id) => {
       const spinner = ora(`Fetching campaign ${id}...`).start();
       try {
-        const data = await client.get(`/campaigns/${id}`);
+        const data = await client.sdk.campaigns.get(parseInt(id));
         spinner.stop();
         formatter.output(data);
       } catch (error: any) {
@@ -69,7 +73,7 @@ export function createCampaignsCommand(client: CakemailClient, formatter: Output
         if (options.templateId) payload.template_id = parseInt(options.templateId);
         if (options.subject) payload.subject = options.subject;
 
-        const data = await client.post('/campaigns', payload);
+        const data = await client.sdk.campaigns.create(payload);
         spinner.stop();
         formatter.success(`Campaign created: ${data.id}`);
         formatter.output(data);
@@ -88,7 +92,7 @@ export function createCampaignsCommand(client: CakemailClient, formatter: Output
     .action(async (id, options) => {
       const spinner = ora(`Scheduling campaign ${id}...`).start();
       try {
-        const data = await client.post(`/campaigns/${id}/schedule`, {
+        const data = await client.sdk.campaigns.schedule(parseInt(id), {
           scheduled_at: options.date,
         });
         spinner.stop();
@@ -109,9 +113,7 @@ export function createCampaignsCommand(client: CakemailClient, formatter: Output
     .action(async (id, options) => {
       const spinner = ora(`Sending test email...`).start();
       try {
-        await client.post(`/campaigns/${id}/send-test`, {
-          email: options.email,
-        });
+        await client.sdk.campaigns.sendTest(parseInt(id), [options.email]);
         spinner.stop();
         formatter.success(`Test email sent to ${options.email}`);
       } catch (error: any) {
@@ -140,7 +142,7 @@ export function createCampaignsCommand(client: CakemailClient, formatter: Output
         if (options.templateId) payload.template_id = parseInt(options.templateId);
         if (options.subject) payload.subject = options.subject;
 
-        const data = await client.patch(`/campaigns/${id}`, payload);
+        const data = await client.sdk.campaigns.update(parseInt(id), payload);
         spinner.stop();
         formatter.success(`Campaign ${id} updated`);
         formatter.output(data);
@@ -164,7 +166,7 @@ export function createCampaignsCommand(client: CakemailClient, formatter: Output
 
       const spinner = ora(`Deleting campaign ${id}...`).start();
       try {
-        await client.delete(`/campaigns/${id}`);
+        await client.sdk.campaigns.delete(parseInt(id));
         spinner.stop();
         formatter.success(`Campaign ${id} deleted`);
       } catch (error: any) {
@@ -181,7 +183,7 @@ export function createCampaignsCommand(client: CakemailClient, formatter: Output
     .action(async (id) => {
       const spinner = ora(`Archiving campaign ${id}...`).start();
       try {
-        const data = await client.post(`/campaigns/${id}/archive`);
+        const data = await client.sdk.campaigns.archive(parseInt(id));
         spinner.stop();
         formatter.success(`Campaign ${id} archived`);
         formatter.output(data);
@@ -199,7 +201,7 @@ export function createCampaignsCommand(client: CakemailClient, formatter: Output
     .action(async (id) => {
       const spinner = ora(`Unarchiving campaign ${id}...`).start();
       try {
-        const data = await client.post(`/campaigns/${id}/unarchive`);
+        const data = await client.sdk.campaigns.unarchive(parseInt(id));
         spinner.stop();
         formatter.success(`Campaign ${id} unarchived`);
         formatter.output(data);
@@ -217,7 +219,7 @@ export function createCampaignsCommand(client: CakemailClient, formatter: Output
     .action(async (id) => {
       const spinner = ora(`Canceling campaign ${id}...`).start();
       try {
-        const data = await client.post(`/campaigns/${id}/cancel`);
+        const data = await client.sdk.campaigns.cancel(parseInt(id));
         spinner.stop();
         formatter.success(`Campaign ${id} canceled`);
         formatter.output(data);
@@ -235,7 +237,7 @@ export function createCampaignsCommand(client: CakemailClient, formatter: Output
     .action(async (id) => {
       const spinner = ora(`Suspending campaign ${id}...`).start();
       try {
-        const data = await client.post(`/campaigns/${id}/suspend`);
+        const data = await client.sdk.campaigns.suspend(parseInt(id));
         spinner.stop();
         formatter.success(`Campaign ${id} suspended`);
         formatter.output(data);
@@ -253,7 +255,7 @@ export function createCampaignsCommand(client: CakemailClient, formatter: Output
     .action(async (id) => {
       const spinner = ora(`Resuming campaign ${id}...`).start();
       try {
-        const data = await client.post(`/campaigns/${id}/resume`);
+        const data = await client.sdk.campaigns.resume(parseInt(id));
         spinner.stop();
         formatter.success(`Campaign ${id} resumed`);
         formatter.output(data);
@@ -272,7 +274,7 @@ export function createCampaignsCommand(client: CakemailClient, formatter: Output
     .action(async (id, options) => {
       const spinner = ora(`Rescheduling campaign ${id}...`).start();
       try {
-        const data = await client.post(`/campaigns/${id}/reschedule`, {
+        const data = await client.sdk.campaigns.reschedule(parseInt(id), {
           scheduled_at: options.date,
         });
         spinner.stop();
@@ -292,7 +294,7 @@ export function createCampaignsCommand(client: CakemailClient, formatter: Output
     .action(async (id) => {
       const spinner = ora(`Unscheduling campaign ${id}...`).start();
       try {
-        const data = await client.post(`/campaigns/${id}/unschedule`);
+        const data = await client.sdk.campaigns.unschedule(parseInt(id));
         spinner.stop();
         formatter.success(`Campaign ${id} unscheduled`);
         formatter.output(data);
@@ -312,11 +314,7 @@ export function createCampaignsCommand(client: CakemailClient, formatter: Output
     .action(async (id, options) => {
       const spinner = ora(`Fetching links for campaign ${id}...`).start();
       try {
-        const params: any = {};
-        if (options.limit) params.per_page = options.limit;
-        if (options.page) params.page = options.page;
-
-        const data = await client.get(`/campaigns/${id}/links`, { params });
+        const data = await client.sdk.campaigns.getLinks(parseInt(id));
         spinner.stop();
         formatter.output(data);
       } catch (error: any) {

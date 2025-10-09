@@ -14,15 +14,21 @@ export function createContactsCommand(client: CakemailClient, formatter: OutputF
     .option('-l, --limit <number>', 'Limit number of results')
     .option('-p, --page <number>', 'Page number')
     .option('-q, --query <query>', 'Search query')
+    .option('--sort <sort>', 'Sort by field: +email, -subscribed_on, +status, etc.')
+    .option('--filter <filter>', 'Filter (e.g., "status==active;email==user@example.com")')
     .action(async (listId, options) => {
       const spinner = ora('Fetching contacts...').start();
       try {
-        const params: any = {};
-        if (options.limit) params.per_page = options.limit;
-        if (options.page) params.page = options.page;
+        const params: any = {
+          list_id: parseInt(listId),
+        };
+        if (options.limit) params.per_page = parseInt(options.limit);
+        if (options.page) params.page = parseInt(options.page);
         if (options.query) params.query = options.query;
+        if (options.sort) params.sort = options.sort;
+        if (options.filter) params.filter = options.filter;
 
-        const data = await client.get(`/lists/${listId}/contacts`, { params });
+        const data = await client.sdk.contacts.list(params);
         spinner.stop();
         formatter.output(data);
       } catch (error: any) {
@@ -39,7 +45,7 @@ export function createContactsCommand(client: CakemailClient, formatter: OutputF
     .action(async (listId, contactId) => {
       const spinner = ora(`Fetching contact ${contactId}...`).start();
       try {
-        const data = await client.get(`/lists/${listId}/contacts/${contactId}`);
+        const data = await client.sdk.contacts.get(parseInt(contactId));
         spinner.stop();
         formatter.output(data);
       } catch (error: any) {
@@ -62,6 +68,7 @@ export function createContactsCommand(client: CakemailClient, formatter: OutputF
       try {
         const payload: any = {
           email: options.email,
+          list_ids: [parseInt(listId)],
         };
         if (options.firstName) payload.first_name = options.firstName;
         if (options.lastName) payload.last_name = options.lastName;
@@ -69,7 +76,7 @@ export function createContactsCommand(client: CakemailClient, formatter: OutputF
           payload.custom_attributes = JSON.parse(options.data);
         }
 
-        const data = await client.post(`/lists/${listId}/contacts`, payload);
+        const data = await client.sdk.contacts.create(payload);
         spinner.stop();
         formatter.success(`Contact added: ${data.id}`);
         formatter.output(data);
@@ -99,7 +106,7 @@ export function createContactsCommand(client: CakemailClient, formatter: OutputF
           payload.custom_attributes = JSON.parse(options.data);
         }
 
-        const data = await client.patch(`/lists/${listId}/contacts/${contactId}`, payload);
+        const data = await client.sdk.contacts.update(parseInt(contactId), payload);
         spinner.stop();
         formatter.success(`Contact ${contactId} updated`);
         formatter.output(data);
@@ -123,7 +130,7 @@ export function createContactsCommand(client: CakemailClient, formatter: OutputF
 
       const spinner = ora(`Deleting contact ${contactId}...`).start();
       try {
-        await client.delete(`/lists/${listId}/contacts/${contactId}`);
+        await client.sdk.contacts.delete(parseInt(contactId));
         spinner.stop();
         formatter.success(`Contact ${contactId} deleted`);
       } catch (error: any) {
@@ -140,7 +147,7 @@ export function createContactsCommand(client: CakemailClient, formatter: OutputF
     .action(async (listId, contactId) => {
       const spinner = ora(`Unsubscribing contact ${contactId}...`).start();
       try {
-        await client.post(`/lists/${listId}/contacts/${contactId}/unsubscribe`);
+        await client.sdk.contacts.unsubscribe(parseInt(contactId), parseInt(listId));
         spinner.stop();
         formatter.success(`Contact ${contactId} unsubscribed`);
       } catch (error: any) {

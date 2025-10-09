@@ -20,12 +20,12 @@ export function createTemplatesCommand(client: CakemailClient, formatter: Output
       const spinner = ora('Fetching templates...').start();
       try {
         const params: any = {};
-        if (options.limit) params.per_page = options.limit;
-        if (options.page) params.page = options.page;
+        if (options.limit) params.perPage = parseInt(options.limit);
+        if (options.page) params.page = parseInt(options.page);
         if (options.filter) params.filter = options.filter;
         if (options.sort) params.sort = options.sort;
 
-        const data = await client.get('/templates', { params });
+        const data = await client.sdk.templateService.listTemplates(params);
         spinner.stop();
         formatter.output(data);
       } catch (error: any) {
@@ -42,7 +42,7 @@ export function createTemplatesCommand(client: CakemailClient, formatter: Output
     .action(async (id) => {
       const spinner = ora(`Fetching template ${id}...`).start();
       try {
-        const data = await client.get(`/templates/${id}`);
+        const data = await client.sdk.templateService.getTemplate({ templateId: parseInt(id) });
         spinner.stop();
         formatter.output(data);
       } catch (error: any) {
@@ -94,13 +94,7 @@ export function createTemplatesCommand(client: CakemailClient, formatter: Output
           payload.tags = options.tags.split(',').map((t: string) => t.trim());
         }
 
-        if (!payload.html && !payload.text) {
-          spinner.fail();
-          formatter.error('Either --html/--html-file or --text/--text-file is required');
-          process.exit(1);
-        }
-
-        const data = await client.post('/templates', payload);
+        const data = await client.sdk.templateService.createTemplate({ requestBody: payload });
         spinner.stop();
         formatter.success(`Template created: ${data.id}`);
         formatter.output(data);
@@ -144,7 +138,7 @@ export function createTemplatesCommand(client: CakemailClient, formatter: Output
         }
 
         // Subject
-        if (options.subject !== undefined) {
+        if (options.subject) {
           payload.subject = options.subject;
         }
 
@@ -153,9 +147,29 @@ export function createTemplatesCommand(client: CakemailClient, formatter: Output
           payload.tags = options.tags.split(',').map((t: string) => t.trim());
         }
 
-        const data = await client.patch(`/templates/${id}`, payload);
+        const data = await client.sdk.templateService.patchTemplate({
+          templateId: parseInt(id),
+          requestBody: payload
+        });
         spinner.stop();
         formatter.success(`Template ${id} updated`);
+        formatter.output(data);
+      } catch (error: any) {
+        spinner.stop();
+        formatter.error(error.message);
+        process.exit(1);
+      }
+    });
+
+  // Render template
+  templates
+    .command('render <id>')
+    .description('Render/preview a template')
+    .action(async (id) => {
+      const spinner = ora(`Rendering template ${id}...`).start();
+      try {
+        const data = await client.sdk.templateService.renderTemplate({ templateId: parseInt(id) });
+        spinner.stop();
         formatter.output(data);
       } catch (error: any) {
         spinner.stop();
@@ -177,28 +191,9 @@ export function createTemplatesCommand(client: CakemailClient, formatter: Output
 
       const spinner = ora(`Deleting template ${id}...`).start();
       try {
-        await client.delete(`/templates/${id}`);
+        await client.sdk.templateService.deleteTemplate({ templateId: parseInt(id) });
         spinner.stop();
         formatter.success(`Template ${id} deleted`);
-      } catch (error: any) {
-        spinner.stop();
-        formatter.error(error.message);
-        process.exit(1);
-      }
-    });
-
-  // Render template
-  templates
-    .command('render <id>')
-    .description('Render a template (returns HTML)')
-    .action(async (id) => {
-      const spinner = ora(`Rendering template ${id}...`).start();
-      try {
-        const data = await client.get(`/templates/${id}/render`);
-        spinner.stop();
-
-        // Output raw HTML (not JSON)
-        console.log(data);
       } catch (error: any) {
         spinner.stop();
         formatter.error(error.message);

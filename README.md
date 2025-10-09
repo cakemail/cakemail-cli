@@ -2,6 +2,8 @@
 
 Official command-line interface for the Cakemail API.
 
+Built on top of the official [cakemail-sdk](https://www.npmjs.com/package/cakemail-sdk) with 100% API coverage (232 operations).
+
 ## Installation
 
 ```bash
@@ -177,9 +179,11 @@ cakemail templates delete <id> --force
 ```bash
 # List all campaigns
 cakemail campaigns list [options]
-  -s, --status <status>   Filter by status
-  -l, --limit <number>    Limit results
-  -p, --page <number>     Page number
+  -s, --status <status>     Filter by status
+  -l, --limit <number>      Limit results
+  -p, --page <number>       Page number
+  --sort <sort>             Sort (e.g., "+name", "-created_on", "+scheduled_for")
+  --filter <filter>         Filter (e.g., "status==delivered;name==Newsletter")
 
 # Get campaign details
 cakemail campaigns get <id>
@@ -240,8 +244,10 @@ cakemail campaigns delete <id> --force
 ```bash
 # List all contact lists
 cakemail lists list [options]
-  -l, --limit <number>    Limit results
-  -p, --page <number>     Page number
+  -l, --limit <number>      Limit results
+  -p, --page <number>       Page number
+  --sort <sort>             Sort (e.g., "+name", "-created_on")
+  --filter <filter>         Filter (e.g., "status==active;name==Newsletter")
 
 # Get list details
 cakemail lists get <id>
@@ -260,9 +266,11 @@ cakemail lists delete <id> --force
 ```bash
 # List contacts in a list
 cakemail contacts list <list-id> [options]
-  -l, --limit <number>    Limit results
-  -p, --page <number>     Page number
-  -q, --query <query>     Search query
+  -l, --limit <number>      Limit results
+  -p, --page <number>       Page number
+  -q, --query <query>       Search query
+  --sort <sort>             Sort (e.g., "+email", "-subscribed_on", "+status")
+  --filter <filter>         Filter (e.g., "status==active;email==user@example.com")
 
 # Get contact details
 cakemail contacts get <list-id> <contact-id>
@@ -292,7 +300,11 @@ cakemail contacts unsubscribe <list-id> <contact-id>
 
 ```bash
 # List all senders
-cakemail senders list
+cakemail senders list [options]
+  -l, --limit <number>      Limit results
+  -p, --page <number>       Page number
+  --sort <sort>             Sort (e.g., "+name", "+email", "-confirmed")
+  --filter <filter>         Filter (e.g., "confirmed==true;email==sender@example.com")
 
 # Get sender details
 cakemail senders get <id>
@@ -301,6 +313,17 @@ cakemail senders get <id>
 cakemail senders create -n "John Doe" -e "john@example.com"
   -n, --name <name>     Sender name (required)
   -e, --email <email>   Sender email (required)
+
+# Update a sender
+cakemail senders update <id> [options]
+  -n, --name <name>     Sender name
+  -e, --email <email>   Sender email
+
+# Confirm sender (using confirmation ID from email)
+cakemail senders confirm <confirmation-id>
+
+# Resend confirmation email
+cakemail senders resend-confirmation <id>
 
 # Delete sender
 cakemail senders delete <id> --force
@@ -369,6 +392,19 @@ cakemail -f table campaigns list
 
 # List campaigns in compact format
 cakemail -f compact campaigns list
+
+# Sort and filter campaigns
+cakemail campaigns list --sort "-created_on" --filter "status==delivered"
+cakemail campaigns list --sort "+name"
+
+# Sort and filter lists
+cakemail lists list --sort "+name" --filter "status==active"
+
+# Sort and filter contacts
+cakemail contacts list 123 --sort "-subscribed_on" --filter "status==active"
+
+# Sort and filter senders
+cakemail senders list --sort "+email" --filter "confirmed==true"
 
 # Create a new list
 cakemail lists create -n "Newsletter Subscribers" -l en

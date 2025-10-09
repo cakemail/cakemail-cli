@@ -13,14 +13,18 @@ export function createListsCommand(client: CakemailClient, formatter: OutputForm
     .description('List all contact lists')
     .option('-l, --limit <number>', 'Limit number of results')
     .option('-p, --page <number>', 'Page number')
+    .option('--sort <sort>', 'Sort by field: +name, -created_on')
+    .option('--filter <filter>', 'Filter (e.g., "status==active;name==Newsletter")')
     .action(async (options) => {
       const spinner = ora('Fetching lists...').start();
       try {
         const params: any = {};
-        if (options.limit) params.per_page = options.limit;
-        if (options.page) params.page = options.page;
+        if (options.limit) params.per_page = parseInt(options.limit);
+        if (options.page) params.page = parseInt(options.page);
+        if (options.sort) params.sort = options.sort;
+        if (options.filter) params.filter = options.filter;
 
-        const data = await client.get('/lists', { params });
+        const data = await client.sdk.lists.list(params);
         spinner.stop();
         formatter.output(data);
       } catch (error: any) {
@@ -37,7 +41,7 @@ export function createListsCommand(client: CakemailClient, formatter: OutputForm
     .action(async (id) => {
       const spinner = ora(`Fetching list ${id}...`).start();
       try {
-        const data = await client.get(`/lists/${id}`);
+        const data = await client.sdk.lists.get(parseInt(id));
         spinner.stop();
         formatter.output(data);
       } catch (error: any) {
@@ -61,7 +65,7 @@ export function createListsCommand(client: CakemailClient, formatter: OutputForm
         };
         if (options.language) payload.language = options.language;
 
-        const data = await client.post('/lists', payload);
+        const data = await client.sdk.lists.create(payload);
         spinner.stop();
         formatter.success(`List created: ${data.id}`);
         formatter.output(data);
@@ -85,7 +89,7 @@ export function createListsCommand(client: CakemailClient, formatter: OutputForm
 
       const spinner = ora(`Deleting list ${id}...`).start();
       try {
-        await client.delete(`/lists/${id}`);
+        await client.sdk.lists.delete(parseInt(id));
         spinner.stop();
         formatter.success(`List ${id} deleted`);
       } catch (error: any) {
