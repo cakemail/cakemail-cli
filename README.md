@@ -10,19 +10,19 @@ Built on top of the official [@cakemail-org/cakemail-sdk](https://www.npmjs.com/
 
 ```bash
 brew tap cakemail/cakemail
-brew install cakemail
+brew install cakemail-cli
 ```
 
 ### via npm
 
 ```bash
-npm install -g @cakemail-org/cli
+npm install -g @cakemail-org/cakemail-cli
 ```
 
 ### via npx (no installation)
 
 ```bash
-npx @cakemail-org/cli --help
+npx @cakemail-org/cakemail-cli --help
 ```
 
 ## Configuration

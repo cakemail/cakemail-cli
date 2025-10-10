@@ -38,7 +38,7 @@ A Homebrew tap allows you to maintain your own formula repository.
 
    ```bash
    brew tap cakemail/cakemail
-   brew install cakemail
+   brew install cakemail-cli
    ```
 
    ## Available Formulas
@@ -64,12 +64,12 @@ A Homebrew tap allows you to maintain your own formula repository.
 Users can then install with:
 ```bash
 brew tap cakemail/cakemail
-brew install cakemail
+brew install cakemail-cli
 ```
 
 Or in one command:
 ```bash
-brew install cakemail/cakemail/cakemail
+brew install cakemail/cakemail/cakemail-cli
 ```
 
 ### Step 3: Updating the Formula
@@ -79,7 +79,7 @@ When you release a new version:
 1. Update the tarball URL and SHA256:
    ```bash
    # Get new tarball URL
-   npm view @cakemail-org/cli@NEW_VERSION dist.tarball
+   npm view @cakemail-org/cakemail-cli@NEW_VERSION dist.tarball
 
    # Calculate SHA256
    curl -sL TARBALL_URL | shasum -a 256
@@ -87,7 +87,7 @@ When you release a new version:
 
 2. Update `Formula/cakemail.rb`:
    ```ruby
-   url "https://registry.npmjs.org/@cakemail-org/cli/-/cli-NEW_VERSION.tgz"
+   url "https://registry.npmjs.org/@cakemail-org/cakemail-cli/-/cli-NEW_VERSION.tgz"
    sha256 "NEW_SHA256_HASH"
    ```
 

@@ -19,7 +19,7 @@ async function main() {
   program
     .name('cakemail')
     .description('Official Cakemail CLI - Command-line interface for the Cakemail API')
-    .version('1.1.2')
+    .version('1.2.0')
     .option('-f, --format <format>', 'Output format (json|table|compact)')
     .option('--access-token <token>', 'Cakemail access token (overrides env)')
     .option('--email <email>', 'Cakemail account email (overrides env)')
