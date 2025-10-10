@@ -1,8 +1,8 @@
-class Cakemail < Formula
+class CakemailCli < Formula
   desc "Official command-line interface for the Cakemail API"
   homepage "https://github.com/cakemail/cakemail-cli"
-  url "https://registry.npmjs.org/@cakemail-org/cli/-/cli-1.1.2.tgz"
-  sha256 "f8dec740e99f39c97489fc7f6d82529a59f5bf44fe05ea18fde2aefccdfb1fdb"
+  url "https://registry.npmjs.org/@cakemail-org/cakemail-cli/-/cakemail-cli-1.2.0.tgz"
+  sha256 "c8d3eae160a892e32837db3dcae515e843e5383fef52b8141940c8bcf8b6d59f"
   license "MIT"
 
   depends_on "node"
