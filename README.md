@@ -6,11 +6,20 @@ Built on top of the official [cakemail-sdk](https://www.npmjs.com/package/cakema
 
 ## Installation
 
+### via Homebrew (macOS/Linux)
+
+```bash
+brew tap cakemail/cakemail
+brew install cakemail
+```
+
+### via npm
+
 ```bash
 npm install -g @cakemail-org/cli
 ```
 
-Or run directly with npx:
+### via npx (no installation)
 
 ```bash
 npx @cakemail-org/cli --help
