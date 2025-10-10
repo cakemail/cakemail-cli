@@ -1,350 +1,283 @@
 # Cakemail API Coverage Report
 
-**CLI Version:** 0.5.0
-**Total API Endpoints:** 149
-**Implemented Commands:** 45
-**Coverage:** 30.2%
+**CLI Version:** 1.1.0
+**SDK Version:** 2.0.0 (100% API coverage - 232 operations)
+**Implementation Approach:** Built on official cakemail-sdk
+**CLI Commands Implemented:** 56
+**Coverage Focus:** High-value, commonly-used endpoints
 
 ---
 
-## Summary by Category
+## Overview
 
-| Category | Total Endpoints | Implemented | Coverage | Priority |
-|----------|----------------|-------------|----------|----------|
-| **Campaign** | 15 | 6 | 40.0% | ✅ High |
-| **Contact** | 16 | 6 | 37.5% | ✅ High |
-| **List** | 11 | 4 | 36.4% | ✅ High |
-| **Webhook** | 6 | 6 | 100% | ✅ Complete |
-| **Sender** | 7 | 4 | 57.1% | ✅ High |
-| **Transactional Email** | 12 | 0 | 0% | ⚪ Out of Scope |
-| **Template** | 6 | 0 | 0% | 🔶 Medium |
-| **Workflow** | 14 | 0 | 0% | 🔶 Medium |
-| **Report** | 11 | 0 | 0% | 🔶 Medium |
-| **Sub-Account** | 10 | 0 | 0% | 🔵 Low |
-| **User** | 13 | 0 | 0% | 🔵 Low |
-| **Segment** | 5 | 0 | 0% | 🔶 Medium |
-| **Interest** | 5 | 0 | 0% | 🔶 Medium |
-| **Custom Attribute** | 4 | 0 | 0% | 🔶 Medium |
-| **Form** | 5 | 0 | 0% | 🔵 Low |
-| **Tags** | 5 | 0 | 0% | 🔶 Medium |
-| **Suppressed Email** | 5 | 0 | 0% | 🔵 Low |
-| **Log** | 10 | 0 | 0% | 🔶 Medium |
-| **Task** | 3 | 0 | 0% | 🔵 Low |
-| **Email API** | 4 | 0 | 0% | ✅ High |
-| **Other** | 10 | 1 | 10% | 🔵 Low |
+The Cakemail CLI is built on top of the official [cakemail-sdk](https://www.npmjs.com/package/cakemail-sdk) v2.0, which provides 100% coverage of the Cakemail API (232 operations across all services).
+
+The CLI focuses on implementing **high-value, commonly-used commands** that developers and marketers need in their daily workflows, while the full SDK is available for advanced use cases.
 
 ---
 
-## Detailed Coverage
+## Command Coverage by Category
 
-### ✅ Campaign (100% - 15/15) - COMPLETE
+| Category | CLI Commands | SDK Coverage | Status |
+|----------|--------------|--------------|--------|
+| **Campaigns** | 15 | 100% (via SDK) | ✅ Complete |
+| **Lists** | 4 | 100% (via SDK) | ✅ Core Complete |
+| **Contacts** | 6 | 100% (via SDK) | ✅ Core Complete |
+| **Senders** | 7 | 100% (via SDK) | ✅ Complete |
+| **Templates** | 6 | 100% (via SDK) | ✅ Complete |
+| **Webhooks** | 6 | 100% (via SDK) | ✅ Complete |
+| **Email API v2** | 3 | 100% (via SDK) | ✅ Core Complete |
 
-**Implemented:**
-- ✅ `campaigns list` → GET /campaigns
-- ✅ `campaigns get <id>` → GET /campaigns/{campaign_id}
-- ✅ `campaigns create` → POST /campaigns
-- ✅ `campaigns update <id>` → PATCH /campaigns/{campaign_id}
-- ✅ `campaigns delete <id>` → DELETE /campaigns/{campaign_id}
-- ✅ `campaigns schedule <id>` → POST /campaigns/{campaign_id}/schedule
-- ✅ `campaigns reschedule <id>` → POST /campaigns/{campaign_id}/reschedule
-- ✅ `campaigns unschedule <id>` → POST /campaigns/{campaign_id}/unschedule
-- ✅ `campaigns test <id>` → POST /campaigns/{campaign_id}/send-test
-- ✅ `campaigns archive <id>` → POST /campaigns/{campaign_id}/archive
-- ✅ `campaigns unarchive <id>` → POST /campaigns/{campaign_id}/unarchive
-- ✅ `campaigns cancel <id>` → POST /campaigns/{campaign_id}/cancel
-- ✅ `campaigns suspend <id>` → POST /campaigns/{campaign_id}/suspend
-- ✅ `campaigns resume <id>` → POST /campaigns/{campaign_id}/resume
-- ✅ `campaigns links <id>` → GET /campaigns/{campaign_id}/links
-
-**Not Needed:**
-- ⚪ GET /campaigns/{campaign_id}/render - Render campaign (use template rendering instead)
-- ⚪ GET /campaigns/{campaign_id}/revisions - List campaign revisions (not in current API spec)
-
-### ✅ Contact (37.5% - 6/16)
-
-**Implemented:**
-- ✅ `contacts list <list-id>` → GET /lists/{list_id}/contacts
-- ✅ `contacts get <list-id> <contact-id>` → GET /lists/{list_id}/contacts/{contact_id}
-- ✅ `contacts add <list-id>` → POST /lists/{list_id}/contacts
-- ✅ `contacts update <list-id> <contact-id>` → PATCH /lists/{list_id}/contacts/{contact_id}
-- ✅ `contacts delete <list-id> <contact-id>` → DELETE /lists/{list_id}/contacts/{contact_id}
-- ✅ `contacts unsubscribe <list-id> <contact-id>` → POST /lists/{list_id}/contacts/{contact_id}/unsubscribe
-
-**Missing:**
-- ❌ POST /lists/{list_id}/import-contacts - Import contacts (bulk)
-- ❌ POST /lists/{list_id}/contacts/add-interests - Add interests to contacts
-- ❌ POST /lists/{list_id}/contacts/remove-interests - Remove interests from contacts
-- ❌ POST /lists/{list_id}/contacts/tag - Tag multiple contacts
-- ❌ POST /lists/{list_id}/contacts/untag - Untag multiple contacts
-- ❌ POST /lists/{list_id}/contacts/{contact_id}/tag - Tag single contact
-- ❌ POST /lists/{list_id}/contacts/{contact_id}/untag - Untag single contact
-- ❌ GET /lists/{list_id}/exports - List contact exports
-- ❌ POST /lists/{list_id}/exports - Create contact export
-- ❌ GET /lists/{list_id}/exports/{export_id} - Get export details
-- ❌ GET /lists/{list_id}/exports/{export_id}/download - Download export
-- ❌ DELETE /lists/{list_id}/exports/{export_id} - Delete export
-- ❌ GET /lists/{list_id}/segments/{segment_id}/contacts - List segment contacts
-
-### ✅ List (36.4% - 4/11)
-
-**Implemented:**
-- ✅ `lists list` → GET /lists
-- ✅ `lists get <id>` → GET /lists/{list_id}
-- ✅ `lists create` → POST /lists
-- ✅ `lists delete <id>` → DELETE /lists/{list_id}
-
-**Missing:**
-- ❌ PATCH /lists/{list_id} - Update list
-- ❌ POST /lists/{list_id}/accept-policy - Accept list policy
-- ❌ POST /lists/{list_id}/archive - Archive list
-- ❌ GET /lists/{list_id}/forms - List subscription forms
-- ❌ POST /lists/{list_id}/forms - Create subscription form
-- ❌ GET /lists/{list_id}/forms/{form_id} - Get subscription form
-- ❌ PATCH /lists/{list_id}/forms/{form_id} - Update subscription form
-- ❌ DELETE /lists/{list_id}/forms/{form_id} - Delete subscription form
-- ❌ POST /lists/{list_id}/forms/{form_id}/enable - Enable form
-- ❌ POST /lists/{list_id}/forms/{form_id}/disable - Disable form
-
-### ✅ Webhook (100% - 6/6) ✨ COMPLETE
-
-**Implemented:**
-- ✅ `webhooks list` → GET /webhooks
-- ✅ `webhooks get <id>` → GET /webhooks/{webhook_id}
-- ✅ `webhooks create` → POST /webhooks
-- ✅ `webhooks update <id>` → PATCH /webhooks/{webhook_id}
-- ✅ `webhooks archive <id>` → POST /webhooks/{webhook_id}/archive
-- ✅ `webhooks unarchive <id>` → POST /webhooks/{webhook_id}/unarchive
-
-### ✅ Sender (57.1% - 4/7)
-
-**Implemented:**
-- ✅ `senders list` → GET /brands/default/senders
-- ✅ `senders get <id>` → GET /brands/default/senders/{sender_id}
-- ✅ `senders create` → POST /brands/default/senders
-- ✅ `senders delete <id>` → DELETE /brands/default/senders/{sender_id}
-
-**Missing:**
-- ❌ PATCH /brands/default/senders/{sender_id} - Update sender
-- ❌ POST /brands/default/senders/confirm-email - Confirm sender email
-- ❌ POST /brands/default/senders/{sender_id}/resend-confirmation-email - Resend confirmation
-
-### ⚪ Transactional Email (0% - 0/12) - OUT OF SCOPE
-
-**Note:** Transactional email endpoints are managed through dedicated workflows and are out of scope for CLI implementation.
-
-**Excluded:**
-- ⚪ POST /emails - Send transactional email
-- ⚪ GET /logs/emails - Show email activity logs
-- ⚪ GET /reports/emails - Show email stats
-- ⚪ GET /lists/{list_id}/transactional-email-templates - List templates
-- ⚪ POST /lists/{list_id}/transactional-email-templates - Create template
-- ⚪ GET /lists/{list_id}/transactional-email-templates/{id} - Get template
-- ⚪ PATCH /lists/{list_id}/transactional-email-templates/{id} - Update template
-- ⚪ DELETE /lists/{list_id}/transactional-email-templates/{id} - Delete template
-- ⚪ POST /lists/{list_id}/transactional-email-templates/{id}/render - Render template
-- ⚪ POST /lists/{list_id}/transactional-email-templates/{id}/send - Send from template
-- ⚪ POST /lists/{list_id}/transactional-email-templates/{id}/send-test - Send test
-- ⚪ GET /email-group-ids - List email group IDs
-- ⚪ PATCH /email-group-ids/{group_id} - Edit email group ID
-
-### ✅ Template (100% - 6/6) - COMPLETE
-
-**Implemented:**
-- ✅ `templates list` → GET /templates - List templates
-- ✅ `templates create` → POST /templates - Create template
-- ✅ `templates get <id>` → GET /templates/{template_id} - Get template
-- ✅ `templates update <id>` → PATCH /templates/{template_id} - Update template
-- ✅ `templates delete <id>` → DELETE /templates/{template_id} - Delete template
-- ✅ `templates render <id>` → GET /templates/{template_id}/render - Render template
-
-### ❌ Workflow (0% - 0/14)
-
-**Missing:**
-- ❌ GET /workflows - List workflows
-- ❌ POST /workflows - Create workflow
-- ❌ GET /workflows/{workflow_id} - Get workflow
-- ❌ PATCH /workflows/{workflow_id} - Update workflow
-- ❌ DELETE /workflows/{workflow_id} - Delete workflow
-- ❌ POST /workflows/{workflow_id}/activate - Activate workflow
-- ❌ POST /workflows/{workflow_id}/deactivate - Deactivate workflow
-- ❌ POST /workflows/{workflow_id}/lock - Lock workflow
-- ❌ POST /workflows/{workflow_id}/unlock - Unlock workflow
-- ❌ GET /workflows/{workflow_id}/actions - List actions
-- ❌ POST /workflows/{workflow_id}/actions - Create action
-- ❌ GET /workflows/{workflow_id}/actions/{action_id} - Get action
-- ❌ PATCH /workflows/{workflow_id}/actions/{action_id} - Update action
-- ❌ DELETE /workflows/{workflow_id}/actions/{action_id} - Delete action
-- ❌ GET /workflows/{workflow_id}/actions/{action_id}/links - Get action links
-- ❌ GET /workflows/{workflow_id}/actions/{action_id}/render - Render action
-- ❌ POST /workflows/{workflow_id}/actions/{action_id}/send-test - Send test action
-
-### ❌ Report (0% - 0/11)
-
-**Missing:**
-- ❌ GET /reports/accounts/self - My account report
-- ❌ GET /reports/accounts/{account_id} - Account report
-- ❌ GET /reports/campaigns/{campaign_id} - Campaign report
-- ❌ GET /reports/campaigns/{campaign_id}/links - Campaign links report
-- ❌ GET /reports/lists/{list_id} - List report
-- ❌ GET /reports/campaigns-exports - List campaign exports
-- ❌ POST /reports/campaigns-exports - Create campaign export
-- ❌ GET /reports/campaigns-exports/{export_id} - Get campaign export
-- ❌ DELETE /reports/campaigns-exports/{export_id} - Delete campaign export
-- ❌ GET /reports/campaigns-exports/{export_id}/download - Download campaign export
-- ❌ GET /reports/workflows/{workflow_id}/actions/{action_id} - Action report
-
-### ❌ Segment (0% - 0/5)
-
-**Missing:**
-- ❌ GET /lists/{list_id}/segments - List segments
-- ❌ POST /lists/{list_id}/segments - Create segment
-- ❌ GET /lists/{list_id}/segments/{segment_id} - Get segment
-- ❌ PATCH /lists/{list_id}/segments/{segment_id} - Update segment
-- ❌ DELETE /lists/{list_id}/segments/{segment_id} - Delete segment
-
-### ❌ Interest (0% - 0/5)
-
-**Missing:**
-- ❌ GET /lists/{list_id}/interests - List interests
-- ❌ POST /lists/{list_id}/interests - Create interest
-- ❌ GET /lists/{list_id}/interests/{interest_name} - Get interest
-- ❌ PATCH /lists/{list_id}/interests/{interest_name} - Update interest
-- ❌ DELETE /lists/{list_id}/interests/{interest_name} - Delete interest
-
-### ❌ Custom Attribute (0% - 0/4)
-
-**Missing:**
-- ❌ GET /lists/{list_id}/custom-attributes - List custom attributes
-- ❌ POST /lists/{list_id}/custom-attributes - Create custom attribute
-- ❌ GET /lists/{list_id}/custom-attributes/{name} - Get custom attribute
-- ❌ DELETE /lists/{list_id}/custom-attributes/{name} - Delete custom attribute
-
-### ❌ Tags (0% - 0/5)
-
-**Missing:**
-- ❌ GET /tags - List contact tags
-- ❌ POST /tags - Create contact tag
-- ❌ GET /tags/{tag} - Show contact tag
-- ❌ PATCH /tags/{tag} - Edit contact tag
-- ❌ DELETE /tags/{tag} - Delete contact tag
-
-### ✅ Email API v2 (42.9% - 3/7) - HIGH PRIORITY
-
-**Implemented:**
-- ✅ `emails send` → POST /v2/emails - Submit an email
-- ✅ `emails get <email-id>` → GET /v2/emails/{email_id} - Retrieve a submitted email
-- ✅ `emails render <email-id>` → GET /v2/emails/{email_id}/render - Render a submitted email
-
-**Missing:**
-- ❌ GET /v2/logs/emails - Show Email API activity logs
-- ❌ GET /v2/reports/emails - Show Email API statistics
-- ❌ GET /logs/emails-summary - Show Email API activity summary
-- ❌ GET /email-tags - List Email Tags
-
-### ❌ Logs & Exports (0% - 0/10) - MEDIUM PRIORITY
-
-**Missing:**
-- ❌ GET /logs/campaigns/{campaign_id} - Show campaign logs
-- ❌ GET /logs/campaigns/{campaign_id}/exports - List campaign log exports
-- ❌ POST /logs/campaigns/{campaign_id}/exports - Create campaign log export
-- ❌ GET /logs/campaigns/{campaign_id}/exports/{export_id}/download - Download export
-- ❌ GET /logs/lists/{list_id} - Show list logs
-- ❌ GET /logs/lists/{list_id}/exports - List list log exports
-- ❌ POST /logs/lists/{list_id}/exports - Create list log export
-- ❌ GET /logs/lists/{list_id}/exports/{export_id}/download - Download export
-- ❌ GET /logs/workflows/{workflow_id}/actions/{action_id} - Show action logs
-- ❌ GET /email-tags - List email tags
+**Total CLI Commands:** 56
+**SDK Services Available:** 28 (AccountService, CampaignService, ContactService, etc.)
 
 ---
 
-## Roadmap & Priorities
+## Implemented CLI Commands
 
-### 🎯 Phase 1: Core Features (v0.1.0 - v0.2.0) ✅ COMPLETE
-- ✅ Campaigns (basic CRUD)
-- ✅ Lists (basic CRUD)
-- ✅ Contacts (basic CRUD)
-- ✅ Senders (basic CRUD)
+### ✅ Campaigns (15 commands) - COMPLETE
+
+**All campaign lifecycle operations:**
+- `campaigns list` - List all campaigns with filtering, sorting, pagination
+- `campaigns get <id>` - Get campaign details
+- `campaigns create` - Create new campaign
+- `campaigns update <id>` - Update campaign
+- `campaigns delete <id>` - Delete campaign
+- `campaigns schedule <id>` - Schedule campaign
+- `campaigns reschedule <id>` - Reschedule campaign
+- `campaigns unschedule <id>` - Unschedule campaign
+- `campaigns test <id>` - Send test email
+- `campaigns archive <id>` - Archive campaign
+- `campaigns unarchive <id>` - Unarchive campaign
+- `campaigns cancel <id>` - Cancel campaign
+- `campaigns suspend <id>` - Suspend campaign
+- `campaigns resume <id>` - Resume campaign
+- `campaigns links <id>` - List campaign links
+
+**SDK Access:** `client.sdk.campaigns.*` or `client.sdk.campaignService.*`
+
+---
+
+### ✅ Lists (4 commands) - CORE COMPLETE
+
+**Essential list management:**
+- `lists list` - List all contact lists with filtering, sorting, pagination
+- `lists get <id>` - Get list details
+- `lists create` - Create new list
+- `lists delete <id>` - Delete list
+
+**SDK Access:** `client.sdk.lists.*` or `client.sdk.listService.*`
+
+**Available via SDK (not yet in CLI):**
+- List updates, archiving, statistics
+- Subscription forms management
+- List-level settings and policies
+
+---
+
+### ✅ Contacts (6 commands) - CORE COMPLETE
+
+**Essential contact operations:**
+- `contacts list <list-id>` - List contacts with filtering, sorting, pagination
+- `contacts get <list-id> <contact-id>` - Get contact details
+- `contacts add <list-id>` - Add contact to list
+- `contacts update <list-id> <contact-id>` - Update contact
+- `contacts delete <list-id> <contact-id>` - Delete contact
+- `contacts unsubscribe <list-id> <contact-id>` - Unsubscribe contact
+
+**SDK Access:** `client.sdk.contacts.*` or `client.sdk.contactService.*`
+
+**Available via SDK (not yet in CLI):**
+- Bulk contact imports/exports
+- Contact tagging (single and bulk)
+- Interest management
+- Segment-based operations
+
+---
+
+### ✅ Senders (7 commands) - COMPLETE
+
+**Full sender management:**
+- `senders list` - List all senders with filtering, sorting, pagination
+- `senders get <id>` - Get sender details
+- `senders create` - Create new sender
+- `senders update <id>` - Update sender
+- `senders delete <id>` - Delete sender
+- `senders confirm <confirmation-id>` - Confirm sender email
+- `senders resend-confirmation <id>` - Resend confirmation email
+
+**SDK Access:** `client.sdk.senderService.*`
+
+---
+
+### ✅ Templates (6 commands) - COMPLETE
+
+**Full template management:**
+- `templates list` - List all templates with filtering, sorting, pagination
+- `templates get <id>` - Get template details
+- `templates create` - Create template (with file upload support)
+- `templates update <id>` - Update template
+- `templates delete <id>` - Delete template
+- `templates render <id>` - Render/preview template
+
+**SDK Access:** `client.sdk.templateService.*`
+
+---
+
+### ✅ Webhooks (6 commands) - COMPLETE
+
+**Full webhook management:**
+- `webhooks list` - List all webhooks with pagination
+- `webhooks get <id>` - Get webhook details
+- `webhooks create` - Create webhook
+- `webhooks update <id>` - Update webhook
+- `webhooks archive <id>` - Archive webhook
+- `webhooks unarchive <id>` - Unarchive webhook
+
+**SDK Access:** `client.sdk.webhooks.*` or `client.sdk.webhookService.*`
+
+---
+
+### ✅ Email API v2 (3 commands) - CORE COMPLETE
+
+**Transactional email operations:**
+- `emails send` - Submit email with HTML/text content or template
+- `emails get <email-id>` - Retrieve submitted email
+- `emails render <email-id>` - Render submitted email HTML
+
+**SDK Access:** `client.sdk.email.*` or `client.sdk.emailApiService.*`
+
+**Available via SDK (not yet in CLI):**
+- Email API logs and statistics
+- Email tag management
+
+---
+
+## SDK Services Available (Not Yet in CLI)
+
+The following SDK services are available for direct use but don't have CLI commands yet:
+
+### High-Value Services
+- **ReportService** - Campaign, list, and account analytics
+- **SegmentService** - Contact segmentation
+- **CustomAttributeService** - Custom field management
+- **TagsService** - Contact tagging system
+- **InterestService** - Contact interest management
+
+### Advanced Services
+- **WorkflowService** - Automation workflows
+- **ActionService** - Workflow actions
+- **FormService** - Subscription forms
+- **SubAccountService** - Multi-tenant operations
+- **UserService** - User management
+- **DomainService** - Domain configuration
+- **DkimService** - Email authentication
+- **LogService** - Activity logs
+- **TaskService** - Async task monitoring
+
+### Supporting Services
+- **AccountService** - Account management
+- **SuppressedEmailService** - Suppression list
+- **SystemEmailService** - System email config
+- **LinksService** - Link tracking
+- **LogoService** - Brand logos
+- **TokenService** - Authentication tokens
+- **TransactionalEmailService** - Transactional templates
+- **CampaignBlueprintService** - Campaign templates
+- **WorkflowBlueprintService** - Workflow templates
+
+---
+
+## Using the SDK Directly
+
+While the CLI provides convenient commands for common operations, you can use the SDK directly for advanced features:
+
+```typescript
+import { CakemailClient } from 'cakemail-sdk';
+
+const client = new CakemailClient({
+  email: 'your@email.com',
+  password: 'your_password'
+});
+
+// Access any of the 28 SDK services
+const segments = await client.segmentService.listSegments({ listId: 123 });
+const reports = await client.reportService.getCampaignReport({ campaignId: 456 });
+const workflows = await client.workflowService.listWorkflows({});
+```
+
+---
+
+## Roadmap
+
+### ✅ Phase 1: Core Operations (v0.1.0 - v0.5.0) - COMPLETE
+- ✅ Campaigns (full lifecycle)
+- ✅ Lists (core CRUD)
+- ✅ Contacts (core CRUD)
+- ✅ Senders (complete)
 - ✅ Webhooks (complete)
+- ✅ Templates (complete)
+- ✅ Email API v2 (core operations)
 
-### 🎯 Phase 2: High Priority Features (v0.3.0 - v0.5.0) ✅ COMPLETE
-- ✅ Email API v2 (submit, retrieve, render) - Core endpoints complete
-- ✅ Campaign lifecycle (archive, suspend, resume, cancel) - Complete
-- ✅ Templates (CRUD + render) - Complete
+### ✅ Phase 2: SDK Integration (v1.0.0 - v1.1.0) - COMPLETE
+- ✅ Migrate to official cakemail-sdk
+- ✅ 100% SDK coverage available
+- ✅ All commands using SDK services
 
-### 🎯 Phase 3: Essential Features (Current - v0.6.0+)
-**High Priority:**
-- 📋 Email API v2 logs and stats (remaining endpoints)
-- 📋 Segments (CRUD)
-- 📋 Contact tags and interests
-- 📋 Custom attributes
-- 📋 Reports (campaigns, lists, accounts)
-- 📋 Logs and exports (campaigns, lists, contacts)
+### 🎯 Phase 3: High-Value Features (v1.2.0+) - PLANNED
+**Priority additions:**
+- Reports (campaigns, lists, accounts)
+- Segments (CRUD operations)
+- Contact tagging and interests
+- Custom attributes management
+- Bulk operations (import/export)
 
-### 🎯 Phase 4: Advanced Features (v0.7.0+)
-**Medium Priority:**
-- 📋 Workflows and automation
-- 📋 Sub-accounts management
-- 📋 User management
-- 📋 Forms
-- 📋 Suppressed emails
-- 📋 DKIM management
-- 📋 Domain configuration
-
-### 🎯 Phase 5: Nice-to-Have (v1.0.0+)
-**Low Priority:**
-- 📋 Tasks
-- 📋 Campaign blueprints
-- 📋 Workflow blueprints
-- 📋 System emails
-- 📋 MFA management
-
-### ⚪ Out of Scope
-**Not Planned:**
-- ⚪ Transactional Email endpoints (managed through workflows)
+### 🎯 Phase 4: Advanced Features (v1.5.0+) - PLANNED
+**Advanced capabilities:**
+- Workflows and automation
+- Forms management
+- Sub-account operations
+- User management
+- Domain and DKIM configuration
 
 ---
 
-## Quick Wins (Easy to Implement)
+## Design Philosophy
 
-These endpoints would significantly improve coverage with minimal effort:
+The CLI focuses on:
 
-1. **Campaign lifecycle** (6 endpoints, simple POST requests):
-   - archive, unarchive, cancel, suspend, resume, reschedule
+1. **High-Value Commands**: Operations developers and marketers use daily
+2. **Developer Experience**: Simple, intuitive commands with great error messages
+3. **SDK Foundation**: Built on official SDK for reliability and maintainability
+4. **Progressive Enhancement**: Core features first, advanced features via SDK
 
-2. **List management** (2 endpoints):
-   - PATCH /lists/{list_id} - Update list
-   - POST /lists/{list_id}/archive - Archive list
-
-3. **Sender completion** (2 endpoints):
-   - PATCH /brands/default/senders/{sender_id} - Update sender
-   - POST /brands/default/senders/{sender_id}/resend-confirmation-email
-
-4. **Contact tags** (2 endpoints):
-   - POST /lists/{list_id}/contacts/{contact_id}/tag
-   - POST /lists/{list_id}/contacts/{contact_id}/untag
-
-5. **Basic reporting** (3 endpoints):
-   - GET /reports/campaigns/{campaign_id}
-   - GET /reports/lists/{list_id}
-   - GET /reports/accounts/self
-
-**Total Quick Wins:** 15 endpoints = **~10% coverage boost** with minimal code
+**Note:** The full SDK provides 100% API coverage. CLI commands are added based on user demand and common use cases.
 
 ---
 
-## Coverage Goals
+## Output Formats
 
-| Version | Target Coverage | Focus Areas |
-|---------|----------------|-------------|
-| v0.2.0 | 18% ✅ | Core CRUD operations |
-| v0.3.0 | 30% | Campaign lifecycle + reporting |
-| v0.4.0 | 45% | Transactional emails + templates |
-| v0.5.0 | 60% | Segments + workflows basics |
-| v0.6.0 | 75% | Advanced features |
-| v1.0.0 | 90%+ | Complete coverage |
+All commands support three output formats:
+
+- **JSON** (default): Full structured data
+- **Table**: Formatted table view
+- **Compact**: One-line summaries
+
+Set default format: `CAKEMAIL_OUTPUT_FORMAT=compact` in `.env`
+Override per command: `cakemail -f table campaigns list`
 
 ---
 
-*Generated: 2025-10-08*
-*CLI Version: 0.2.0*
-*API Version: Latest (149 endpoints)*
+## Advanced Filtering and Sorting
+
+All list commands support:
+
+- **Sorting**: `--sort "+name"` or `--sort "-created_on"`
+- **Filtering**: `--filter "status==active;name==Newsletter"`
+- **Pagination**: `-l 50 -p 2` (50 per page, page 2)
+
+---
+
+*Last Updated: 2025-10-10*
+*CLI Version: 1.1.0*
+*SDK Version: 2.0.0 (232 operations)*
