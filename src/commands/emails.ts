@@ -137,9 +137,7 @@ export function createEmailsCommand(client: CakemailClient, formatter: OutputFor
 
         const data = await client.sdk.email.render(emailId, params);
         spinner.stop();
-
-        // Output raw HTML (not JSON)
-        console.log(data);
+        formatter.output(data);
       } catch (error: any) {
         spinner.stop();
         formatter.error(error.message);

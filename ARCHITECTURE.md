@@ -208,7 +208,7 @@ To publish to npm:
 
 Users can then install globally:
 ```bash
-npm install -g @cakemail/cli
+npm install -g @cakemail-org/cli
 cakemail campaigns list
 ```
 
