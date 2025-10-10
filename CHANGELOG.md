@@ -5,6 +5,20 @@ All notable changes to the Cakemail CLI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2025-10-10
+
+### Security
+- Pre-publication security cleanup
+- Enhanced .gitignore patterns
+
+### Documentation
+- Added CONTRIBUTING.md with development guidelines
+- Added CHANGELOG.md with version history
+- Fixed package name in ARCHITECTURE.md
+
+### Fixed
+- Replaced console.log with formatter.output in emails render command
+
 ## [1.1.0] - 2025-10-10
 
 ### Added
