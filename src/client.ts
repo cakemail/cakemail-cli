@@ -1,4 +1,4 @@
-import { CakemailClient as SDK, CakemailClientConfig } from 'cakemail-sdk';
+import { CakemailClient as SDK, CakemailClientConfig } from '@cakemail-org/cakemail-sdk';
 
 export interface CakemailConfig {
   accessToken?: string;

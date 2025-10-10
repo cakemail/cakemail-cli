@@ -163,7 +163,7 @@ To add a new command category:
 
 ## SDK Integration
 
-The CLI is built on the official [cakemail-sdk](https://www.npmjs.com/package/cakemail-sdk).
+The CLI is built on the official [@cakemail-org/cakemail-sdk](https://www.npmjs.com/package/@cakemail-org/cakemail-sdk).
 
 - Always use SDK methods: `client.sdk.serviceName.method()`
 - Follow SDK 2.0 object-based API patterns

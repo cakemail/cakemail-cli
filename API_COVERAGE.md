@@ -2,7 +2,7 @@
 
 **CLI Version:** 1.1.0
 **SDK Version:** 2.0.0 (100% API coverage - 232 operations)
-**Implementation Approach:** Built on official cakemail-sdk
+**Implementation Approach:** Built on official @cakemail-org/cakemail-sdk
 **CLI Commands Implemented:** 56
 **Coverage Focus:** High-value, commonly-used endpoints
 
@@ -10,7 +10,7 @@
 
 ## Overview
 
-The Cakemail CLI is built on top of the official [cakemail-sdk](https://www.npmjs.com/package/cakemail-sdk) v2.0, which provides 100% coverage of the Cakemail API (232 operations across all services).
+The Cakemail CLI is built on top of the official [@cakemail-org/cakemail-sdk](https://www.npmjs.com/package/@cakemail-org/cakemail-sdk) v2.0, which provides 100% coverage of the Cakemail API (232 operations across all services).
 
 The CLI focuses on implementing **high-value, commonly-used commands** that developers and marketers need in their daily workflows, while the full SDK is available for advanced use cases.
 
@@ -193,7 +193,7 @@ The following SDK services are available for direct use but don't have CLI comma
 While the CLI provides convenient commands for common operations, you can use the SDK directly for advanced features:
 
 ```typescript
-import { CakemailClient } from 'cakemail-sdk';
+import { CakemailClient } from '@cakemail-org/cakemail-sdk';
 
 const client = new CakemailClient({
   email: 'your@email.com',

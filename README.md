@@ -2,7 +2,7 @@
 
 Official command-line interface for the Cakemail API.
 
-Built on top of the official [cakemail-sdk](https://www.npmjs.com/package/cakemail-sdk) with 100% API coverage (232 operations).
+Built on top of the official [@cakemail-org/cakemail-sdk](https://www.npmjs.com/package/@cakemail-org/cakemail-sdk) with 100% API coverage (232 operations).
 
 ## Installation
 

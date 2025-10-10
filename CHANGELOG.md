@@ -5,6 +5,16 @@ All notable changes to the Cakemail CLI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2025-10-10
+
+### Changed
+- **BREAKING**: Migrated to new SDK package name `@cakemail-org/cakemail-sdk` (was `cakemail-sdk`)
+- Updated all documentation references to new SDK package name
+
+### Added
+- Homebrew distribution support via `brew tap cakemail/cakemail`
+- HOMEBREW.md with complete Homebrew setup guide
+
 ## [1.1.1] - 2025-10-10
 
 ### Security
@@ -22,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.1.0] - 2025-10-10
 
 ### Added
-- Full migration to official cakemail-sdk v2.0 with 100% API coverage (232 operations)
+- Full migration to official @cakemail-org/cakemail-sdk v2.0 with 100% API coverage (232 operations)
 - Complete senders management (7 commands)
 - Complete templates management (6 commands)
 - User-configurable default output format via `CAKEMAIL_OUTPUT_FORMAT` environment variable
@@ -46,7 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2025-10-09
 
 ### Added
-- Initial migration to official cakemail-sdk v1.1.0
+- Initial migration to official @cakemail-org/cakemail-sdk v1.1.0
 - SDK integration for campaigns, lists, contacts, emails, and webhooks
 
 ### Changed
