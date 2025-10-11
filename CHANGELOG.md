@@ -5,6 +5,180 @@ All notable changes to the Cakemail CLI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2025-10-11
+
+### Added - Complete API Coverage Sprint (30 new commands)
+
+Massive API coverage expansion from 108 to 136 commands, achieving **59% API coverage** (136/232 operations). This completes nearly all of the v1.4.0 API coverage goals.
+
+**Tags Management (5 commands)**
+- `tags list` - List all contact tags with optional contact counts
+- `tags show <tag>` - Show tag details including usage statistics
+- `tags create -n <name>` - Create new global tag
+- `tags update <tag> -n <name>` - Rename existing tag
+- `tags delete <tag>` - Delete tag (with confirmation, removes from all contacts)
+
+**Interests Management (5 commands)**
+- `interests list [list-id]` - List interests (auto-detects if only one list)
+- `interests get [list-id] <interest-name>` - Get interest details
+- `interests create [list-id] -n <name>` - Create interest with optional alias
+- `interests update [list-id] <interest-name>` - Update interest name/alias
+- `interests delete [list-id] <interest-name>` - Delete interest (with confirmation)
+
+**Contact-Level Interest Management (2 commands)**
+- `contacts add-interests <list-id>` - Add interests to contacts (bulk via --contacts IDs or --query SQL)
+- `contacts remove-interests <list-id>` - Remove interests from contacts (bulk operations supported)
+
+**Campaign Enhancements (3 commands)**
+- `campaigns render <id>` - Render campaign HTML preview with optional contact personalization
+- `campaigns revisions <id>` - List campaign revision history with pagination
+- `campaigns blueprints` - List campaign blueprints/templates with filtering
+
+**Activity Logs (6 commands)**
+- `logs campaign <id>` - View campaign activity logs with filtering and sorting
+- `logs list [list-id]` - View list activity logs (auto-detects if only one list)
+- `logs campaign-export <id>` - Create campaign log export to CSV
+- `logs campaign-export-download <id> <export-id>` - Get download URL for campaign log export
+- `logs list-export [list-id]` - Create list log export to CSV
+- `logs list-export-download [list-id] <export-id>` - Get download URL for list log export
+
+**Transactional Email Templates (9 commands)**
+- `transactional-templates list [list-id]` - List templates (auto-detects if only one list)
+- `transactional-templates show [list-id] <id>` - Show template details
+- `transactional-templates create [list-id]` - Create template with HTML/text/subject
+- `transactional-templates update [list-id] <id>` - Update template content
+- `transactional-templates delete [list-id] <id>` - Delete template (with confirmation)
+- `transactional-templates send [list-id] <id>` - Send to contact ID or email address
+- `transactional-templates test [list-id] <id>` - Send test email with variables
+- `transactional-templates render [list-id] <id>` - Render template HTML with variables
+
+### API Coverage Progress
+- **Before**: 108 commands (46% coverage)
+- **After**: 136 commands (59% coverage)
+- **Added**: 30 commands in this release
+- **v1.4.0 Target**: 140 commands (60%) - 96% complete, just 4 commands away!
+
+### Key Features
+- **Auto-Detection**: All list-scoped commands support automatic list ID detection when only one list exists
+- **Profile-Aware**: All new commands respect user profiles (developer/marketer/balanced) for output formatting and interactivity
+- **Interactive Confirmations**: Delete operations include profile-aware confirmation prompts (can be skipped with --force)
+- **Bulk Operations**: Contact interest management supports bulk operations via contact IDs or SQL queries
+- **Progress Indicators**: Tag/interest bulk operations show progress with elapsed time
+- **Error Handling**: Enhanced error messages with context-specific suggestions for all new commands
+- **SDK Integration**: All commands use @cakemail-org/cakemail-sdk v2.0 for API calls
+
+### Example Usage
+
+**Tags Management:**
+```bash
+# List all tags with contact counts
+$ cakemail tags list --with-count
+✓ Tags retrieved successfully
+┌────┬─────────┬────────────────┬─────────────────────┐
+│ ID │ Name    │ Contacts Count │ Created At          │
+├────┼─────────┼────────────────┼─────────────────────┤
+│ 1  │ vip     │ 342            │ 2025-09-15 10:23:11 │
+│ 2  │ premium │ 128            │ 2025-09-20 14:05:42 │
+└────┴─────────┴────────────────┴─────────────────────┘
+
+# Create and manage tags
+$ cakemail tags create --name "early-adopter"
+$ cakemail tags update "early-adopter" --name "beta-tester"
+$ cakemail tags delete "old-tag"
+```
+
+**Interests Management:**
+```bash
+# Create interest (auto-detects list if only one exists)
+$ cakemail interests create --name "Product Updates" --alias "updates"
+
+# Bulk add interests to contacts
+$ cakemail contacts add-interests 123 -i "updates,news" -c "1,2,3"
+$ cakemail contacts add-interests 123 -i "promotions" -q "status==active"
+
+# Remove interests from contacts
+$ cakemail contacts remove-interests 123 -i "old-interest" -q "tags==inactive"
+```
+
+**Campaign Enhancements:**
+```bash
+# Render campaign with contact personalization
+$ cakemail campaigns render 789 --contact-id 456
+
+# View campaign revision history
+$ cakemail campaigns revisions 789
+
+# Browse campaign blueprints
+$ cakemail campaigns blueprints --filter "is_owner" --sort "+name"
+```
+
+**Activity Logs:**
+```bash
+# View campaign logs with filtering
+$ cakemail logs campaign 789 --filter "type==open" --sort "+time"
+
+# Export campaign logs to CSV
+$ cakemail logs campaign-export 789 --description "Q4 Analytics"
+$ cakemail logs campaign-export-download 789 export-id-123
+
+# View and export list activity
+$ cakemail logs list --start-time 1696118400 --filter "type==subscribe"
+```
+
+**Transactional Templates:**
+```bash
+# Create template
+$ cakemail transactional-templates create \
+  --name "Order Confirmation" \
+  --subject "Your order #{{order_id}}" \
+  --html "<h1>Thank you!</h1>" \
+  --sender-id 456
+
+# Send with variables
+$ cakemail transactional-templates send 123 \
+  --email user@example.com \
+  --variables '{"order_id":"12345","total":"$99.99"}'
+
+# Test template
+$ cakemail transactional-templates test 123 \
+  --email test@example.com \
+  --variables '{"order_id":"TEST"}'
+
+# Render preview
+$ cakemail transactional-templates render 123 \
+  --contact-id 456 \
+  --variables '{"order_id":"12345"}'
+```
+
+### Changed
+- Coverage increased from 108 to 136 commands (46% → 59% API coverage)
+- Contact commands now include interest management operations
+- Campaign commands now include render, revisions, and blueprints
+- Version bumped to 1.6.0
+
+### Technical Improvements
+- Created `src/commands/tags.ts` - Complete tags management
+- Created `src/commands/interests.ts` - Interest CRUD operations
+- Created `src/commands/logs.ts` - Activity logs and exports
+- Created `src/commands/transactional-templates.ts` - Full transactional template lifecycle
+- Enhanced `src/commands/campaigns.ts` - Added render, revisions, blueprints
+- Enhanced `src/commands/contacts.ts` - Added add-interests, remove-interests
+- All new commands follow SDK-based architecture with proper error handling
+- All commands support profile-aware output and confirmations
+
+### Documentation
+- Updated API coverage metrics to reflect 59% completion
+- Added comprehensive examples for all new command groups
+- Documented bulk operations for interest management
+
+### Notes
+- **No breaking changes** - All existing commands remain compatible
+- All new delete operations respect profile settings for confirmations
+- Bulk operations show progress indicators for better UX
+- Auto-detection makes commands work with zero configuration for single-list users
+- Full backward compatibility with v1.5.0 commands
+- Nearly achieved v1.4.0 target of 60% API coverage (96% complete)
+
 ## [1.5.0] - 2025-10-11
 
 ### Added - Complete Profile System

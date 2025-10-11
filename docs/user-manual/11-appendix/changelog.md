@@ -4,6 +4,44 @@ This changelog tracks updates to the user manual documentation. For CLI feature 
 
 ---
 
+## [Documentation v1.6.0] - 2025-10-11
+
+### Added
+
+**Tags & Interests Management**
+- New command reference: [Tags Commands](../09-command-reference/tags.md) - Complete tags management (5 commands)
+- New command reference: [Interests Commands](../09-command-reference/interests.md) - Interest CRUD operations (5 commands)
+- Updated [Contacts Commands](../09-command-reference/contacts.md) - Interest management operations (2 new commands)
+
+**Activity Logs**
+- New command reference: [Logs Commands](../09-command-reference/logs.md) - Activity logs and exports (6 commands)
+
+**Transactional Email Templates**
+- New command reference: [Transactional Templates Commands](../09-command-reference/transactional-templates.md) - Full template lifecycle (9 commands)
+
+**Campaign Enhancements**
+- Updated [Campaign Commands](../09-command-reference/campaigns.md) - Render, revisions, blueprints (3 new commands)
+
+### Updated
+- Main README version reference: 1.5.0 → 1.6.0
+- Command Reference README updated with 4 new command categories
+- Navigation updated throughout documentation
+
+### CLI Features Documented
+From [CHANGELOG v1.6.0](../../../../CHANGELOG.md#160---2025-10-11):
+- 30 new commands across 5 categories
+- API coverage increased from 46% to 59% (136/232 operations)
+- Tags management (5 commands)
+- Interests management (7 commands total)
+- Activity logs (6 commands)
+- Transactional templates (9 commands)
+- Campaign enhancements (3 commands)
+- Bulk operations for contact interests
+- Profile-aware confirmations for all delete operations
+- Auto-detection support for all list-scoped commands
+
+---
+
 ## [Documentation v1.5.0] - 2025-10-11
 
 ### Added

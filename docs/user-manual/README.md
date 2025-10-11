@@ -118,7 +118,7 @@ Additional resources and references.
 
 ## About This Manual
 
-This manual covers version 1.5.0 of the Cakemail CLI. For the latest updates, see the [Changelog](./11-appendix/changelog.md).
+This manual covers version 1.6.0 of the Cakemail CLI. For the latest updates, see the [Changelog](./11-appendix/changelog.md).
 
 ## Getting Help
 

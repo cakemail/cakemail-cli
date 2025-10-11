@@ -1,7 +1,7 @@
 # Cakemail CLI - Master Backlog
 
 **Last Updated:** 2025-10-11
-**Current Version:** 1.5.0
+**Current Version:** 1.6.0
 **Project Status:** Active Development
 
 ---
@@ -10,12 +10,37 @@
 
 This document tracks all planned work for the Cakemail CLI across multiple dimensions:
 - **UX Improvements** (v1.4.0 - v1.7.0)
-- **API Coverage Expansion** (v1.3.0 - v1.5.0+)
+- **API Coverage Expansion** (v1.3.0 - v1.6.0+)
 - **Profile System** (v1.5.0)
 
 ---
 
 ## ✅ Recently Completed
+
+### v1.6.0 - API Coverage Expansion ✅ SHIPPED (2025-10-11)
+
+**Status:** ✅ COMPLETED AND SHIPPED
+**Coverage:** 108 → 136 commands (46% → 59% coverage)
+
+#### New Command Groups (30 commands total)
+- [x] Tags (5 commands) - List, show, create, update, delete tags
+- [x] Interests (5 commands) - List, show, create, update, delete interests
+- [x] Contact Interests (2 commands) - Add/remove interests from contacts (bulk operations)
+- [x] Campaign Enhancements (3 commands) - Show HTML, stats, extended filtering
+- [x] Activity Logs (3 commands) - Campaign logs, list logs, show log entry
+- [x] Transactional Templates (12 commands) - Full CRUD + send/test/render operations
+
+#### Key Features
+- **Tags Management** - Create and assign tags to contacts
+- **Interests Management** - Track subscriber interests with bulk operations
+- **Transactional Templates** - Complete template lifecycle with variable support
+- **Activity Logs** - Campaign and list activity tracking with filtering
+- **Campaign Stats** - Direct access to campaign statistics
+- **Auto-Detection** - List ID auto-detection for transactional templates
+
+**Impact:** Major API coverage increase, reaching 59% of total Cakemail API (136/232 commands)
+
+---
 
 ### v1.5.0 - Profile System ✅ SHIPPED (2025-10-11)
 
@@ -118,22 +143,22 @@ This document tracks all planned work for the Cakemail CLI across multiple dimen
 ## 🎯 Current Focus
 
 ### Active Work
-- **Status:** Just completed Profile System (v1.5.0) ✅
+- **Status:** Just completed API Coverage Expansion (v1.6.0) ✅
 - **Next Decision:** Choose next feature from backlog
 
-### What We Just Shipped (v1.5.0)
-- ✅ Complete Profile System with 3 profiles
-- ✅ Interactive prompt system
-- ✅ Profile-aware output, colors, dates, errors
-- ✅ 6 new profile management commands
-- ✅ `--profile` and `--batch` global flags
+### What We Just Shipped (v1.6.0)
+- ✅ 30 new commands across 6 feature areas
+- ✅ Tags and Interests management
+- ✅ Transactional templates with full lifecycle
+- ✅ Activity logs and campaign enhancements
+- ✅ 59% API coverage achieved (136/232 commands)
 
 ### Quick Wins Available (< 3 days each)
 - Natural date parsing (2-3 days)
 - Email preview (1-2 days)
-- Campaign enhancements (1-2 days)
-- Tags commands (2-3 days)
-- Interests commands (2-3 days)
+- ~~Campaign enhancements~~ ✅ v1.6.0
+- ~~Tags commands~~ ✅ v1.6.0
+- ~~Interests commands~~ ✅ v1.6.0
 
 ---
 
@@ -372,12 +397,12 @@ Based on: `UX_IMPLEMENTATION_PLAN.md`
 
 ---
 
-## 2️⃣ API Coverage Expansion (v1.3.0 - v1.5.0+)
+## 2️⃣ API Coverage Expansion (v1.3.0 - v1.7.0+)
 
 Based on: `API_COVERAGE.md`
 
-**Current Coverage:** 108 / 232 commands (46%)
-**Target v1.5.0:** 180+ / 232 commands (78%+)
+**Current Coverage:** 136 / 232 commands (59%)
+**Target v1.7.0:** 180+ / 232 commands (78%+)
 
 ### v1.3.0 - Analytics & Data Operations ✅ COMPLETED
 
@@ -396,92 +421,31 @@ Based on: `API_COVERAGE.md`
 
 ---
 
-### v1.4.0 - Scale & Efficiency (PARTIALLY COMPLETE)
+### v1.6.0 - API Coverage Expansion ✅ COMPLETED (2025-10-11)
 
-**Status:** 🟡 5 commands added (103 → 108), many UX features added
-**API Coverage:** 44% → 46% (108/232 commands)
+**Status:** ✅ SHIPPED
+**API Coverage:** 46% → 59% (108 → 136 commands)
 
 **Completed:**
-- [x] Account management (5 commands) - show, list, use, test, logout
+- [x] Account management (5 commands) - show, list, use, test, logout [v1.4.0]
+- [x] Tags (5 commands) - list, show, create, update, delete [v1.6.0]
+- [x] Interests (5 commands) - list, show, create, update, delete [v1.6.0]
+- [x] Contact Interests (2 commands) - add-interests, remove-interests [v1.6.0]
+- [x] Transactional Templates (12 commands) - Full CRUD + send/test/render [v1.6.0]
+- [x] Activity Logs (3 commands) - campaign, list, show [v1.6.0]
+- [x] Campaign Enhancements (3 commands) - show-html, stats, extended filtering [v1.6.0]
 
-**Remaining API Coverage Items:**
-
-#### Tags (5 new commands)
-**Priority:** HIGH
-**Effort:** Low (2-3 days)
-**Status:** NOT STARTED
-
-```bash
-cakemail tags list
-cakemail tags create --name vip
-cakemail tags delete <tag>
-cakemail contacts tag <list-id> <contact-id> --tags "vip,premium"
-cakemail contacts untag <list-id> <contact-id> --tags "trial"
-cakemail contacts tag-bulk <list-id> --contacts "1,2,3" --tags "segment-a"
-```
-
-#### Interests (5 new commands)
-**Priority:** MEDIUM
-**Effort:** Low (2-3 days)
-**Status:** NOT STARTED
-
-```bash
-cakemail interests list <list-id>
-cakemail interests create <list-id> --name "Product Updates"
-cakemail interests delete <list-id> <interest-name>
-cakemail contacts add-interests <list-id> <contact-id> --interests "updates,news"
-cakemail contacts remove-interests <list-id> <contact-id> --interests "promotions"
-```
-
-#### Transactional Email Templates (9 new commands)
-**Priority:** HIGH
-**Effort:** Medium (4-5 days)
-**Status:** NOT STARTED
-
-```bash
-cakemail transactional-templates list
-cakemail transactional-templates create --name "Order Confirmation"
-cakemail transactional-templates update <id>
-cakemail transactional-templates delete <id>
-cakemail transactional-templates send <id> --contact <id>
-cakemail transactional-templates test <id> --email test@example.com
-cakemail transactional-templates render <id>
-```
-
-#### Campaign Logs (5 new commands)
-**Priority:** MEDIUM
-**Effort:** Medium (3-4 days)
-**Status:** NOT STARTED
-
-```bash
-cakemail logs campaign <id>
-cakemail logs campaign <id> --export
-cakemail logs campaign <id> --download <export-id>
-cakemail logs list <id>
-cakemail logs list <id> --export
-```
-
-#### Campaign Enhancements (3 new commands)
-**Priority:** LOW
-**Effort:** Low (1-2 days)
-**Status:** NOT STARTED
-
-```bash
-cakemail campaigns render <id>         # Preview campaign HTML
-cakemail campaigns revisions <id>      # View campaign history
-cakemail campaigns blueprint <id>      # Use campaign blueprint
-```
-
-**v1.4.0 API Target:** 106 → 140 commands (46% → 60% coverage)
-**Current Progress:** 108/140 (77% complete, missing 32 commands)
+**Original Target:** 140 commands (60% coverage)
+**Actual Achievement:** 136 commands (59% coverage) - 96% of target
+**Gap:** 4 commands remaining to reach 60%
 
 ---
 
-### v1.5.0+ - Enterprise & Automation
+### v1.7.0+ - Enterprise & Automation
 
 **Status:** NOT STARTED
 **Target:** 180+ / 232 commands (78%+ coverage)
-**Gap:** 72+ commands to implement
+**Gap:** 44+ commands to implement
 
 #### Workflows (18 commands)
 **Priority:** MEDIUM
@@ -641,7 +605,7 @@ Based on: `cakemail-profile-system-plan.md` and `PROFILE_SYSTEM_TASKS.md`
 Based on **Impact × Urgency** scoring:
 
 ### 🔴 CRITICAL (Do Now)
-1. **Complete v1.4.0 API Coverage** - 32 commands remaining (Tags, Interests, Transactional Templates, Logs, Campaign Enhancements)
+1. ~~**Complete v1.6.0 API Coverage**~~ ✅ COMPLETED (30 commands added)
 2. **Quickstart Wizard** - Critical for new user onboarding (currently no guided flow)
 
 ### 🟡 HIGH (Do Next)
@@ -651,9 +615,9 @@ Based on **Impact × Urgency** scoring:
 6. **Interactive Auth Setup** - Makes onboarding smoother
 
 ### 🟢 MEDIUM (Do Later)
-7. **v1.5.0 API Coverage** - Workflows, Domain/DKIM (enterprise features)
+7. **v1.7.0 API Coverage** - Workflows, Domain/DKIM (enterprise features)
 8. **Search/Find Commands** - Nice quality of life improvement
-9. **Configuration Management** - Power user feature
+9. ~~**Configuration Management**~~ ✅ COMPLETED (v1.5.0 Profile System)
 10. **Shell Completion** - Developer convenience
 
 ### ⚪ LOW (Nice to Have)
@@ -676,31 +640,31 @@ Based on **Impact × Urgency** scoring:
 - **Profile System:** ~70-80 days (14-16 weeks)
 
 **API Coverage:**
-- v1.4.0 remaining (32 commands): ~15-20 days
-- v1.5.0+ (72+ commands): ~40-50 days
+- ~~v1.6.0 (30 commands)~~ ✅ COMPLETED
+- v1.7.0+ (44+ commands): ~25-30 days
 
-**Total Backlog:** ~155-210 days (31-42 weeks of full-time work)
+**Total Backlog:** ~100-150 days (20-30 weeks of full-time work)
 
 ### Quick Wins (< 3 days each)
 - Natural date parsing (2-3 days)
 - Email preview (1-2 days)
-- Campaign enhancements (1-2 days)
-- Tags commands (2-3 days)
-- Interests commands (2-3 days)
+- ~~Campaign enhancements~~ ✅ v1.6.0
+- ~~Tags commands~~ ✅ v1.6.0
+- ~~Interests commands~~ ✅ v1.6.0
 - Aliases (1-2 days)
 
 ### Medium Effort (3-7 days each)
 - Interactive auth setup (3-5 days)
-- Interactive mode for missing fields (3-5 days)
+- ~~Interactive mode for missing fields~~ ✅ v1.5.0
 - Search/find commands (3-4 days)
-- Configuration management (3-4 days)
-- Transactional templates (4-5 days)
-- Campaign logs (3-4 days)
+- ~~Configuration management~~ ✅ v1.5.0
+- ~~Transactional templates~~ ✅ v1.6.0
+- ~~Campaign logs~~ ✅ v1.6.0
 - Smart file handling (2-3 days)
 
 ### Large Effort (> 7 days each)
 - Quickstart wizard (5-7 days)
-- Profile system (70-80 days / 14-16 weeks)
+- ~~Profile system~~ ✅ v1.5.0 (70-80 days / 14-16 weeks)
 - Workflows (10-15 days)
 - Bulk operations enhancement (3-4 days base, ongoing)
 
@@ -708,74 +672,81 @@ Based on **Impact × Urgency** scoring:
 
 ## 🎯 Recommended Roadmap
 
-### Option A: Complete v1.4.0 + Profile System (Recommended)
+### Current Progress (v1.6.0)
+✅ **Completed:**
+- v1.5.0 Profile System (3 profiles, interactive prompts, configuration management)
+- v1.6.0 API Coverage (30 commands: tags, interests, transactional templates, logs)
+- 136/232 commands = 59% API coverage
 
-**Timeline:** 6-8 months
+### Option A: Quick UX Wins + v1.7.0 API Coverage (Recommended)
 
-1. **Finish v1.4.0 API Coverage** (3-4 weeks)
-   - Tags, Interests, Transactional Templates, Logs, Campaign Enhancements
-   - Target: 108 → 140 commands (46% → 60% coverage)
+**Timeline:** 3-4 months
+
+1. **Quick UX Wins** (2-3 weeks)
+   - Natural date parsing
+   - Email preview
+   - Search/find commands
+   - Interactive auth setup
+
+2. **v1.7.0 API Coverage** (8-10 weeks)
+   - Workflows (18 commands)
+   - Account/User Management (13 commands)
+   - Domain/DKIM (7 commands)
+   - Forms (5 commands)
+   - Target: 136 → 180+ commands (59% → 78% coverage)
+
+3. **Polish & Ship** (2-3 weeks)
+   - Shell completion
+   - Final UX polish
+   - Documentation
+
+**Result:** v1.7.0 with 78% API coverage + enhanced UX
+
+---
+
+### Option B: Enterprise Features First
+
+**Timeline:** 3-4 months
+
+1. **v1.7.0 API Coverage** (8-10 weeks)
+   - Focus on enterprise features (Workflows, Account/User, Domain/DKIM)
+   - 136 → 180+ commands
 
 2. **Quick UX Wins** (2-3 weeks)
    - Natural date parsing
    - Email preview
+   - Interactive auth
+
+3. **Advanced Features** (4-5 weeks)
    - Search/find commands
-
-3. **Profile System Implementation** (14-16 weeks)
-   - Full implementation with all 4 phases
-   - Beta testing with both personas
-   - Biggest UX transformation
-
-4. **v1.5.0 Polish** (2-3 weeks)
-   - Configuration management
    - Shell completion
-   - Final UX polish
+   - Bulk operations enhancement
 
-**Result:** v1.5.0 with 60% API coverage + profile system
-
----
-
-### Option B: API Coverage First (Alternative)
-
-**Timeline:** 4-6 months
-
-1. **Finish v1.4.0 API Coverage** (3-4 weeks)
-   - 108 → 140 commands
-
-2. **v1.5.0 API Coverage** (8-10 weeks)
-   - Workflows, Account/Users, Domain/DKIM, Forms
-   - 140 → 180+ commands (60% → 78% coverage)
-
-3. **Quick UX Wins** (2-3 weeks)
-   - Natural date parsing
-   - Email preview
-   - Interactive auth setup
-
-4. **Defer Profile System** to v1.6.0
-
-**Result:** v1.5.0 with 78% API coverage, no profile system
+**Result:** v1.7.0 with 78% API coverage, defer advanced UX
 
 ---
 
-### Option C: UX-First Approach (Bold)
+### Option C: UX Excellence Path
 
-**Timeline:** 5-7 months
+**Timeline:** 2-3 months
 
-1. **Profile System Implementation** (14-16 weeks)
-   - Skip remaining v1.4.0 API coverage
-   - Focus entirely on UX transformation
-
-2. **Complete UX Suite** (4-5 weeks)
+1. **Complete UX Suite** (4-5 weeks)
    - Quickstart wizard
    - Natural date parsing
    - Email preview
-   - Interactive auth
-   - Configuration management
+   - Interactive auth setup
+   - Search/find commands
+   - Smart file handling
 
-3. **Return to API Coverage** (6-8 weeks)
-   - v1.4.0 remaining + v1.5.0
+2. **Developer Experience** (2-3 weeks)
+   - Shell completion
+   - Aliases
+   - Dry run mode
+   - Better scripting support
 
-**Result:** v1.5.0 with profile system + full UX, 46% API coverage (defer to v1.6.0)
+3. **Defer API Coverage** to v1.7.0
+
+**Result:** v1.7.0 with exceptional UX, 59% API coverage (defer to v1.8.0)
 
 ---
 
@@ -803,22 +774,25 @@ Based on **Impact × Urgency** scoring:
 
 ## 📝 Notes
 
-**Current State (v1.4.0):**
-- 108 commands implemented (46% API coverage)
-- Strong UX foundation: auth, errors, confirmations, smart defaults, enhanced output
-- Missing: Profile system, some API coverage, quickstart wizard
+**Current State (v1.6.0):**
+- 136 commands implemented (59% API coverage)
+- ✅ Complete Profile System with 3 profiles
+- ✅ Interactive prompts and confirmations
+- ✅ Tags, Interests, Transactional Templates, Activity Logs
+- Strong UX foundation: auth, errors, smart defaults, enhanced output
+- Missing: Quickstart wizard, natural date parsing, advanced API coverage
 
 **Key Decisions Needed:**
-1. Complete v1.4.0 API coverage or move to profile system?
-2. Implement quickstart wizard before or after profile system?
+1. Focus on UX wins (Option C) or push to 78% API coverage (Option A/B)?
+2. Implement quickstart wizard now or after v1.7.0?
 3. Interactive auth setup - priority or skip?
-4. Natural date parsing - include in v1.4.0 or defer?
+4. Natural date parsing - high priority or defer?
 
 **Dependencies:**
-- Profile system doesn't depend on API coverage (can do either first)
+- ~~Profile system~~ ✅ COMPLETED (v1.5.0)
 - Quickstart wizard works better with interactive auth setup
-- Interactive auth can be part of profile system
 - Natural date parsing is independent
+- v1.7.0 API coverage doesn't block UX features
 
 ---
 

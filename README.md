@@ -588,6 +588,165 @@ cakemail emails logs --tag newsletter --status delivered
 cakemail emails tags
 ```
 
+#### Tags (NEW in v1.6.0)
+
+```bash
+# List all tags
+cakemail tags list <list-id>
+  -p, --page <number>     Page number
+  --per-page <number>     Results per page
+  --with-count            Include total count
+
+# Show tag details
+cakemail tags show <list-id> <tag-id>
+
+# Create a tag
+cakemail tags create <list-id> -n "vip" -d "VIP customers"
+  -n, --name <name>           Tag name (required)
+  -d, --description <text>    Tag description
+
+# Update a tag
+cakemail tags update <list-id> <tag-id> -n "premium" -d "Premium members"
+  -n, --name <name>           New tag name
+  -d, --description <text>    New description
+
+# Delete a tag
+cakemail tags delete <list-id> <tag-id> --force
+```
+
+#### Interests (NEW in v1.6.0)
+
+```bash
+# List all interests
+cakemail interests list <list-id>
+  -p, --page <number>     Page number
+  --per-page <number>     Results per page
+  --with-count            Include total count
+
+# Show interest details
+cakemail interests show <list-id> <interest-id>
+
+# Create an interest
+cakemail interests create <list-id> -n "Product Updates" -d "Receive product announcements"
+  -n, --name <name>           Interest name (required)
+  -d, --description <text>    Interest description
+
+# Update an interest
+cakemail interests update <list-id> <interest-id> -n "News" -d "Newsletter updates"
+  -n, --name <name>           New interest name
+  -d, --description <text>    New description
+
+# Delete an interest
+cakemail interests delete <list-id> <interest-id> --force
+
+# Manage contact interests
+cakemail contacts add-interests <list-id> -i "Product Updates,News" -c "1,2,3"
+cakemail contacts add-interests <list-id> -i "Newsletter" -q "status='subscribed'"
+cakemail contacts remove-interests <list-id> -i "Old Interest" -c "1,2,3"
+  -i, --interests <interests>   Comma-separated interest names (required)
+  -c, --contacts <ids>          Comma-separated contact IDs
+  -q, --query <query>           SQL query to select contacts
+```
+
+#### Campaign Enhancements (NEW in v1.6.0)
+
+```bash
+# Enhanced campaign commands with additional filters
+cakemail campaigns list --sort "+scheduled_for"  # Sort by scheduled date
+cakemail campaigns list --filter "status==delivered;name==Newsletter"
+
+# Show rendered campaign HTML
+cakemail campaigns show-html <id>
+
+# Get campaign statistics
+cakemail campaigns stats <id>
+```
+
+#### Activity Logs (NEW in v1.6.0)
+
+```bash
+# Campaign activity logs
+cakemail logs campaign <campaign-id>
+  --from <date>           Filter by start date (YYYY-MM-DD)
+  --to <date>             Filter by end date (YYYY-MM-DD)
+  --status <status>       Filter by status
+  -p, --page <number>     Page number
+  --per-page <number>     Results per page
+
+# List activity logs
+cakemail logs list <list-id>
+  --from <date>           Filter by start date
+  --to <date>             Filter by end date
+  --status <status>       Filter by status
+  -p, --page <number>     Page number
+  --per-page <number>     Results per page
+
+# Show single log entry
+cakemail logs show <list-id> <log-id>
+```
+
+#### Transactional Templates (NEW in v1.6.0)
+
+```bash
+# List transactional templates
+cakemail transactional-templates list [list-id]
+  -p, --page <number>     Page number
+  --per-page <number>     Results per page
+  --with-count            Include total count
+
+# Show template details
+cakemail transactional-templates show [list-id] <template-id>
+
+# Create a transactional template
+cakemail transactional-templates create [list-id] \
+  -n "Order Confirmation" \
+  -s "Your Order #{{order_id}}" \
+  --html "<h1>Order Confirmation</h1>" \
+  --sender-id 123
+  -n, --name <name>         Template name (required)
+  -s, --subject <subject>   Email subject (required)
+  --html <html>             HTML content (required)
+  --text <text>             Plain text content
+  --sender-id <id>          Sender ID
+  --tracking <tracking>     Tracking settings
+
+# Update a template
+cakemail transactional-templates update [list-id] <template-id> \
+  -n "New Name" \
+  -s "New Subject"
+  -n, --name <name>         Template name
+  -s, --subject <subject>   Email subject
+  --html <html>             HTML content
+  --text <text>             Plain text content
+  --sender-id <id>          Sender ID
+  --tracking <tracking>     Tracking settings
+
+# Delete a template
+cakemail transactional-templates delete [list-id] <template-id> --force
+
+# Send transactional email from template
+cakemail transactional-templates send [list-id] <template-id> \
+  -c 456 \
+  --variables '{"order_id":"12345"}'
+  -c, --contact-id <id>     Contact ID to send to
+  -e, --email <email>       Email address (alternative to contact-id)
+  --variables <json>        Template variables as JSON
+
+# Send test email
+cakemail transactional-templates test [list-id] <template-id> \
+  -e "test@example.com" \
+  --variables '{"order_id":"TEST"}'
+  -e, --email <email>       Email address (required)
+  --variables <json>        Template variables as JSON
+
+# Render template preview
+cakemail transactional-templates render [list-id] <template-id> \
+  -c 456 \
+  --variables '{"order_id":"12345"}'
+  -c, --contact-id <id>     Contact ID for personalization
+  --variables <json>        Template variables as JSON
+```
+
 ## Examples
 
 ```bash
