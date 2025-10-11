@@ -620,5 +620,95 @@ export function createContactsCommand(client: CakemailClient, formatter: OutputF
       }
     });
 
+  // Add interests to contacts
+  contacts
+    .command('add-interests <list-id>')
+    .description('Add interests to one or more contacts')
+    .requiredOption('-i, --interests <interests>', 'Comma-separated interest names')
+    .option('-c, --contacts <ids>', 'Comma-separated contact IDs')
+    .option('-q, --query <query>', 'SQL query to select contacts')
+    .action(async (listId, options) => {
+      // Must have either contact IDs or query
+      if (!options.contacts && !options.query) {
+        formatter.error('Either --contacts or --query is required');
+        process.exit(1);
+      }
+
+      const spinner = ora('Adding interests to contacts...').start();
+      try {
+        const interests = options.interests.split(',').map((i: string) => i.trim());
+        const payload: any = { interests };
+
+        if (options.contacts) {
+          payload.contact_ids = options.contacts.split(',').map((id: string) => parseInt(id.trim()));
+        }
+        if (options.query) {
+          payload.query = options.query;
+        }
+
+        await client.sdk.contactService.addInterestsToContacts({
+          listId: parseInt(listId),
+          requestBody: payload
+        });
+
+        spinner.stop();
+        formatter.success('Interests added to contacts');
+      } catch (error: any) {
+        spinner.stop();
+        displayError(error, {
+          command: 'contacts add-interests',
+          resource: 'list',
+          resourceId: listId,
+          operation: 'add interests'
+        });
+        process.exit(1);
+      }
+    });
+
+  // Remove interests from contacts
+  contacts
+    .command('remove-interests <list-id>')
+    .description('Remove interests from one or more contacts')
+    .requiredOption('-i, --interests <interests>', 'Comma-separated interest names')
+    .option('-c, --contacts <ids>', 'Comma-separated contact IDs')
+    .option('-q, --query <query>', 'SQL query to select contacts')
+    .action(async (listId, options) => {
+      // Must have either contact IDs or query
+      if (!options.contacts && !options.query) {
+        formatter.error('Either --contacts or --query is required');
+        process.exit(1);
+      }
+
+      const spinner = ora('Removing interests from contacts...').start();
+      try {
+        const interests = options.interests.split(',').map((i: string) => i.trim());
+        const payload: any = { interests };
+
+        if (options.contacts) {
+          payload.contact_ids = options.contacts.split(',').map((id: string) => parseInt(id.trim()));
+        }
+        if (options.query) {
+          payload.query = options.query;
+        }
+
+        await client.sdk.contactService.removeInterestsFromContacts({
+          listId: parseInt(listId),
+          requestBody: payload
+        });
+
+        spinner.stop();
+        formatter.success('Interests removed from contacts');
+      } catch (error: any) {
+        spinner.stop();
+        displayError(error, {
+          command: 'contacts remove-interests',
+          resource: 'list',
+          resourceId: listId,
+          operation: 'remove interests'
+        });
+        process.exit(1);
+      }
+    });
+
   return contacts;
 }
