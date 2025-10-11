@@ -15,6 +15,8 @@ import { createReportsCommand } from './commands/reports.js';
 import { createSegmentsCommand } from './commands/segments.js';
 import { createAttributesCommand } from './commands/attributes.js';
 import { createSuppressedCommand } from './commands/suppressed.js';
+import { createAccountCommand } from './commands/account.js';
+import { registerConfigCommands } from './commands/config.js';
 import chalk from 'chalk';
 
 async function main() {
@@ -23,31 +25,71 @@ async function main() {
   program
     .name('cakemail')
     .description('Official Cakemail CLI - Command-line interface for the Cakemail API')
-    .version('1.3.0')
+    .version('1.5.0')
     .option('-f, --format <format>', 'Output format (json|table|compact)')
+    .option('--profile <type>', 'Override profile for this command (developer|marketer|balanced)')
+    .option('--batch', 'Run in batch/scripting mode (disable all interactive prompts)')
     .option('--access-token <token>', 'Cakemail access token (overrides env)')
     .option('--email <email>', 'Cakemail account email (overrides env)')
-    .option('--password <password>', 'Cakemail account password (overrides env)');
+    .option('--password <password>', 'Cakemail account password (overrides env)')
+    .option('--account <id>', 'Account ID to use for this command (overrides current account)');
 
   try {
-    // Get config (don't require credentials for help/version)
-    const config = getConfig(false);
+    // Check if this is a help/version command that doesn't need credentials
+    const args = process.argv.slice(2);
+    const isHelpOrVersion = args.length === 0 ||
+                           args.includes('-h') ||
+                           args.includes('--help') ||
+                           args.includes('-V') ||
+                           args.includes('--version');
+
+    // Get config with interactive authentication if needed
+    const config = await getConfig(!isHelpOrVersion, !isHelpOrVersion);
 
     // Create client and formatter with lazy format evaluation
-    // Client will fail on first API call if credentials are missing
     const client = new CakemailClient(config);
-    const formatter = new OutputFormatter(() => {
-      const opts = program.opts();
-      // Override config with CLI options
-      if (opts.accessToken) config.accessToken = opts.accessToken;
-      if (opts.email) config.email = opts.email;
-      if (opts.password) config.password = opts.password;
+    const formatter = new OutputFormatter(
+      () => {
+        const opts = program.opts();
+        // Override config with CLI options
+        if (opts.accessToken) config.accessToken = opts.accessToken;
+        if (opts.email) config.email = opts.email;
+        if (opts.password) config.password = opts.password;
+        if (opts.account) config.currentAccountId = opts.account;
 
-      // Priority: CLI flag > env var > default
-      return (opts.format as OutputFormat) || config.outputFormat || 'json';
-    });
+        // Priority: CLI flag > env var > profile config > default
+        return (opts.format as OutputFormat) || config.outputFormat || 'json';
+      },
+      () => {
+        const opts = program.opts();
+
+        // Handle --batch flag by setting environment variable
+        if (opts.batch) {
+          process.env.CAKEMAIL_BATCH_MODE = 'true';
+        }
+
+        // Handle --profile override
+        if (opts.profile) {
+          const { getProfileConfig } = require('./utils/config-file.js');
+          const validProfiles = ['developer', 'marketer', 'balanced'];
+
+          if (!validProfiles.includes(opts.profile)) {
+            console.error(chalk.red(`Invalid profile: ${opts.profile}`));
+            console.error(chalk.gray(`Valid profiles: ${validProfiles.join(', ')}`));
+            process.exit(1);
+          }
+
+          return getProfileConfig(opts.profile);
+        }
+
+        // Return default profile config
+        return config.profileConfig;
+      }
+    );
 
     // Add commands
+    registerConfigCommands(program);
+    program.addCommand(createAccountCommand(client, formatter));
     program.addCommand(createCampaignsCommand(client, formatter));
     program.addCommand(createListsCommand(client, formatter));
     program.addCommand(createContactsCommand(client, formatter));

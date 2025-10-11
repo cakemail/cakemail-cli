@@ -2,6 +2,11 @@ import { Command } from 'commander';
 import { CakemailClient } from '../client.js';
 import { OutputFormatter } from '../utils/output.js';
 import ora from 'ora';
+import { displayError, validate } from '../utils/errors.js';
+import { confirmDelete } from '../utils/confirm.js';
+import { autoDetectList, autoDetectSender } from '../utils/defaults.js';
+import { promptText, promptSelect, createSpinner } from '../utils/interactive.js';
+import chalk from 'chalk';
 
 export function createCampaignsCommand(client: CakemailClient, formatter: OutputFormatter): Command {
   const campaigns = new Command('campaigns')
@@ -41,6 +46,13 @@ export function createCampaignsCommand(client: CakemailClient, formatter: Output
     .command('get <id>')
     .description('Get campaign details')
     .action(async (id) => {
+      // Validate ID
+      const validation = validate.id(id, 'Campaign ID');
+      if (!validation.valid) {
+        formatter.error(validation.error!);
+        process.exit(1);
+      }
+
       const spinner = ora(`Fetching campaign ${id}...`).start();
       try {
         const data = await client.sdk.campaigns.get(parseInt(id));
@@ -48,7 +60,12 @@ export function createCampaignsCommand(client: CakemailClient, formatter: Output
         formatter.output(data);
       } catch (error: any) {
         spinner.stop();
-        formatter.error(error.message);
+        displayError(error, {
+          command: 'campaigns get',
+          resource: 'campaign',
+          resourceId: id,
+          operation: 'fetch'
+        });
         process.exit(1);
       }
     });
@@ -56,30 +73,134 @@ export function createCampaignsCommand(client: CakemailClient, formatter: Output
   // Create campaign
   campaigns
     .command('create')
-    .description('Create a new campaign')
-    .requiredOption('-n, --name <name>', 'Campaign name')
-    .requiredOption('-l, --list-id <id>', 'List ID')
-    .option('-s, --sender-id <id>', 'Sender ID')
+    .description('Create a new campaign (auto-detects list and sender if only one exists)')
+    .option('-n, --name <name>', 'Campaign name')
+    .option('-l, --list-id <id>', 'List ID (auto-detected if only one list exists)')
+    .option('-s, --sender-id <id>', 'Sender ID (auto-detected if only one confirmed sender exists)')
     .option('-t, --template-id <id>', 'Template ID')
     .option('--subject <subject>', 'Email subject')
     .action(async (options) => {
-      const spinner = ora('Creating campaign...').start();
+      const profileConfig = formatter.getProfile();
+
+      // Interactive prompt for campaign name if not provided
+      let campaignName = options.name;
+      if (!campaignName) {
+        campaignName = await promptText('Campaign name:', {
+          required: true,
+          profileConfig
+        });
+
+        if (!campaignName) {
+          formatter.error('Campaign name is required');
+          formatter.info('Usage: cakemail campaigns create --name "My Campaign"');
+          process.exit(1);
+        }
+      }
+      // Interactive prompt for list selection
+      let listId = options.listId;
+      if (!listId) {
+        // Try auto-detect first
+        listId = await autoDetectList(client, formatter, options.listId, { useCache: true });
+
+        // If auto-detect failed and we're in interactive mode, show selection prompt
+        if (!listId) {
+          try {
+            const listsData = await client.sdk.lists.list();
+            const lists = listsData.data || listsData;
+
+            if (Array.isArray(lists) && lists.length > 0) {
+              console.log(chalk.cyan('\nAvailable Lists:\n'));
+
+              const selectedList = await promptSelect(
+                'Select a list:',
+                lists.map(list => ({
+                  name: list.name,
+                  value: list.id,
+                  description: `${list.subscribers_count || 0} contacts`
+                })),
+                { required: true, profileConfig }
+              );
+
+              listId = selectedList;
+            }
+          } catch (error: any) {
+            // Ignore errors, will fail validation below
+          }
+        }
+
+        if (!listId) {
+          formatter.error('List ID is required');
+          formatter.info('Usage: cakemail campaigns create --name "My Campaign" --list-id <id>');
+          process.exit(1);
+        }
+      }
+
+      // Interactive prompt for sender selection
+      let senderId = options.senderId;
+      if (!senderId) {
+        // Try auto-detect first
+        senderId = await autoDetectSender(client, formatter, options.senderId, {
+          useCache: true,
+          requireConfirmed: true
+        });
+
+        // If auto-detect failed and we're in interactive mode, show selection prompt
+        if (!senderId) {
+          try {
+            const sendersData = await client.sdk.senderService.listSenders({ perPage: 100 });
+            const senders = sendersData.data || sendersData;
+
+            if (Array.isArray(senders) && senders.length > 0) {
+              console.log(chalk.cyan('\nAvailable Confirmed Senders:\n'));
+
+              const selectedSender = await promptSelect(
+                'Select a sender:',
+                senders.map(sender => ({
+                  name: `${sender.name} <${sender.email}>`,
+                  value: sender.id,
+                  description: sender.confirmed ? 'Confirmed' : 'Pending'
+                })),
+                { required: true, profileConfig }
+              );
+
+              senderId = selectedSender;
+            }
+          } catch (error: any) {
+            // Ignore errors, will fail validation below
+          }
+        }
+
+        if (!senderId) {
+          formatter.error('Sender ID is required');
+          formatter.info('Usage: cakemail campaigns create --name "My Campaign" --sender-id <id>');
+          process.exit(1);
+        }
+      }
+
+      // Profile-aware spinner
+      const spinner = createSpinner('Creating campaign...', profileConfig);
+      spinner.start();
+
       try {
         const payload: any = {
-          name: options.name,
-          list_id: parseInt(options.listId),
+          name: campaignName,
+          list_id: listId,
+          sender_id: senderId,
         };
-        if (options.senderId) payload.sender_id = parseInt(options.senderId);
         if (options.templateId) payload.template_id = parseInt(options.templateId);
         if (options.subject) payload.subject = options.subject;
 
         const data = await client.sdk.campaigns.create(payload);
-        spinner.stop();
-        formatter.success(`Campaign created: ${data.id}`);
+        spinner.succeed(`Campaign created: ${data.id}`);
         formatter.output(data);
       } catch (error: any) {
-        spinner.stop();
-        formatter.error(error.message);
+        spinner.fail('Failed to create campaign');
+        displayError(error, {
+          command: 'campaigns create',
+          resource: 'campaign',
+          operation: 'create',
+          profileConfig
+        });
         process.exit(1);
       }
     });
@@ -111,6 +232,20 @@ export function createCampaignsCommand(client: CakemailClient, formatter: Output
     .description('Send a test email')
     .requiredOption('-e, --email <email>', 'Recipient email address')
     .action(async (id, options) => {
+      // Validate campaign ID
+      const idValidation = validate.id(id, 'Campaign ID');
+      if (!idValidation.valid) {
+        formatter.error(idValidation.error!);
+        process.exit(1);
+      }
+
+      // Validate email
+      const emailValidation = validate.email(options.email);
+      if (!emailValidation.valid) {
+        formatter.error(emailValidation.error!);
+        process.exit(1);
+      }
+
       const spinner = ora(`Sending test email...`).start();
       try {
         await client.sdk.campaigns.sendTest(parseInt(id), [options.email]);
@@ -118,7 +253,12 @@ export function createCampaignsCommand(client: CakemailClient, formatter: Output
         formatter.success(`Test email sent to ${options.email}`);
       } catch (error: any) {
         spinner.stop();
-        formatter.error(error.message);
+        displayError(error, {
+          command: 'campaigns test',
+          resource: 'campaign',
+          resourceId: id,
+          operation: 'send test email'
+        });
         process.exit(1);
       }
     });
@@ -157,11 +297,27 @@ export function createCampaignsCommand(client: CakemailClient, formatter: Output
   campaigns
     .command('delete <id>')
     .description('Delete a campaign')
-    .option('-f, --force', 'Skip confirmation')
+    .option('-f, --force', 'Skip confirmation prompt')
     .action(async (id, options) => {
-      if (!options.force) {
-        formatter.info('Use --force to confirm deletion');
+      // Validate ID
+      const validation = validate.id(id, 'Campaign ID');
+      if (!validation.valid) {
+        formatter.error(validation.error!);
         process.exit(1);
+      }
+
+      // Interactive confirmation (unless --force is used)
+      if (!options.force) {
+        const profileConfig = formatter.getProfile();
+        const confirmed = await confirmDelete('campaign', id, [
+          'Campaign will be permanently deleted',
+          'This action cannot be undone'
+        ], profileConfig);
+
+        if (!confirmed) {
+          formatter.info('Deletion cancelled');
+          return;
+        }
       }
 
       const spinner = ora(`Deleting campaign ${id}...`).start();
@@ -171,7 +327,12 @@ export function createCampaignsCommand(client: CakemailClient, formatter: Output
         formatter.success(`Campaign ${id} deleted`);
       } catch (error: any) {
         spinner.stop();
-        formatter.error(error.message);
+        displayError(error, {
+          command: 'campaigns delete',
+          resource: 'campaign',
+          resourceId: id,
+          operation: 'delete'
+        });
         process.exit(1);
       }
     });

@@ -2,6 +2,8 @@ import { Command } from 'commander';
 import { CakemailClient } from '../client.js';
 import { OutputFormatter } from '../utils/output.js';
 import ora from 'ora';
+import { displayError, validate } from '../utils/errors.js';
+import { confirmDelete } from '../utils/confirm.js';
 
 export function createSendersCommand(client: CakemailClient, formatter: OutputFormatter): Command {
   const senders = new Command('senders')
@@ -57,6 +59,13 @@ export function createSendersCommand(client: CakemailClient, formatter: OutputFo
     .requiredOption('-n, --name <name>', 'Sender name')
     .requiredOption('-e, --email <email>', 'Sender email')
     .action(async (options) => {
+      // Validate email
+      const emailValidation = validate.email(options.email);
+      if (!emailValidation.valid) {
+        formatter.error(emailValidation.error!);
+        process.exit(1);
+      }
+
       const spinner = ora('Creating sender...').start();
       try {
         const data = await client.sdk.senderService.createSender({
@@ -71,7 +80,11 @@ export function createSendersCommand(client: CakemailClient, formatter: OutputFo
         formatter.output(data);
       } catch (error: any) {
         spinner.stop();
-        formatter.error(error.message);
+        displayError(error, {
+          command: 'senders create',
+          resource: 'sender',
+          operation: 'create'
+        });
         process.exit(1);
       }
     });
@@ -83,6 +96,15 @@ export function createSendersCommand(client: CakemailClient, formatter: OutputFo
     .option('-n, --name <name>', 'Sender name')
     .option('-e, --email <email>', 'Sender email')
     .action(async (id, options) => {
+      // Validate email if provided
+      if (options.email) {
+        const emailValidation = validate.email(options.email);
+        if (!emailValidation.valid) {
+          formatter.error(emailValidation.error!);
+          process.exit(1);
+        }
+      }
+
       const spinner = ora(`Updating sender ${id}...`).start();
       try {
         const payload: any = {};
@@ -98,7 +120,12 @@ export function createSendersCommand(client: CakemailClient, formatter: OutputFo
         formatter.output(data);
       } catch (error: any) {
         spinner.stop();
-        formatter.error(error.message);
+        displayError(error, {
+          command: 'senders update',
+          resource: 'sender',
+          resourceId: id,
+          operation: 'update'
+        });
         process.exit(1);
       }
     });
@@ -107,11 +134,18 @@ export function createSendersCommand(client: CakemailClient, formatter: OutputFo
   senders
     .command('delete <id>')
     .description('Delete a sender')
-    .option('-f, --force', 'Skip confirmation')
+    .option('-f, --force', 'Skip confirmation prompt')
     .action(async (id, options) => {
+      // Interactive confirmation (unless --force is used)
       if (!options.force) {
-        formatter.info('Use --force to confirm deletion');
-        process.exit(1);
+        const confirmed = await confirmDelete('sender', id, [
+          'Sender will be permanently deleted'
+        ]);
+
+        if (!confirmed) {
+          formatter.info('Deletion cancelled');
+          return;
+        }
       }
 
       const spinner = ora(`Deleting sender ${id}...`).start();

@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import { CakemailClient } from '../client.js';
 import { OutputFormatter } from '../utils/output.js';
 import ora from 'ora';
+import { confirmDelete } from '../utils/confirm.js';
 
 export function createSuppressedCommand(client: CakemailClient, formatter: OutputFormatter): Command {
   const suppressed = new Command('suppressed')
@@ -54,11 +55,19 @@ export function createSuppressedCommand(client: CakemailClient, formatter: Outpu
   suppressed
     .command('delete <email>')
     .description('Remove an email from the suppression list')
-    .option('-f, --force', 'Skip confirmation')
+    .option('-f, --force', 'Skip confirmation prompt')
     .action(async (email, options) => {
+      // Interactive confirmation (unless --force is used)
       if (!options.force) {
-        formatter.info('Use --force to confirm deletion');
-        process.exit(1);
+        const confirmed = await confirmDelete('suppressed email', email, [
+          'Email will be removed from the suppression list',
+          'This email address will be able to receive emails again'
+        ]);
+
+        if (!confirmed) {
+          formatter.info('Deletion cancelled');
+          return;
+        }
       }
 
       const spinner = ora(`Removing ${email} from suppression list...`).start();
@@ -157,11 +166,18 @@ export function createSuppressedCommand(client: CakemailClient, formatter: Outpu
   suppressed
     .command('export-delete <export-id>')
     .description('Delete a suppressed emails export')
-    .option('-f, --force', 'Skip confirmation')
+    .option('-f, --force', 'Skip confirmation prompt')
     .action(async (exportId, options) => {
+      // Interactive confirmation (unless --force is used)
       if (!options.force) {
-        formatter.info('Use --force to confirm deletion');
-        process.exit(1);
+        const confirmed = await confirmDelete('suppressed emails export', exportId, [
+          'Export file will be permanently deleted'
+        ]);
+
+        if (!confirmed) {
+          formatter.info('Deletion cancelled');
+          return;
+        }
       }
 
       const spinner = ora(`Deleting export ${exportId}...`).start();

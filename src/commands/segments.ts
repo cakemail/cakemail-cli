@@ -2,6 +2,8 @@ import { Command } from 'commander';
 import { CakemailClient } from '../client.js';
 import { OutputFormatter } from '../utils/output.js';
 import ora from 'ora';
+import { confirmDelete } from '../utils/confirm.js';
+import { autoDetectList } from '../utils/defaults.js';
 
 export function createSegmentsCommand(client: CakemailClient, formatter: OutputFormatter): Command {
   const segments = new Command('segments')
@@ -9,15 +11,22 @@ export function createSegmentsCommand(client: CakemailClient, formatter: OutputF
 
   // List segments
   segments
-    .command('list <list-id>')
-    .description('List all segments in a list')
+    .command('list [list-id]')
+    .description('List all segments in a list (auto-detects if only one list exists)')
     .option('-l, --limit <number>', 'Limit number of results')
     .option('-p, --page <number>', 'Page number')
     .action(async (listId, options) => {
+      // Auto-detect list ID if not provided
+      const detectedListId = await autoDetectList(client, formatter, listId, { useCache: true });
+
+      if (!detectedListId) {
+        process.exit(1);
+      }
+
       const spinner = ora('Fetching segments...').start();
       try {
         const params: any = {
-          listId: parseInt(listId)
+          listId: detectedListId
         };
         if (options.limit) params.per_page = parseInt(options.limit);
         if (options.page) params.page = parseInt(options.page);
@@ -34,13 +43,20 @@ export function createSegmentsCommand(client: CakemailClient, formatter: OutputF
 
   // Get segment
   segments
-    .command('get <list-id> <segment-id>')
-    .description('Get segment details')
+    .command('get [list-id] <segment-id>')
+    .description('Get segment details (auto-detects if only one list exists)')
     .action(async (listId, segmentId) => {
+      // Auto-detect list ID if not provided
+      const detectedListId = await autoDetectList(client, formatter, listId, { useCache: true });
+
+      if (!detectedListId) {
+        process.exit(1);
+      }
+
       const spinner = ora(`Fetching segment ${segmentId}...`).start();
       try {
         const data = await client.sdk.segmentService.getSegment({
-          listId: parseInt(listId),
+          listId: detectedListId,
           segmentId: parseInt(segmentId)
         });
         spinner.stop();
@@ -54,11 +70,18 @@ export function createSegmentsCommand(client: CakemailClient, formatter: OutputF
 
   // Create segment
   segments
-    .command('create <list-id>')
-    .description('Create a new segment')
+    .command('create [list-id]')
+    .description('Create a new segment (auto-detects if only one list exists)')
     .requiredOption('-n, --name <name>', 'Segment name')
     .option('-c, --conditions <json>', 'Segment conditions as JSON')
     .action(async (listId, options) => {
+      // Auto-detect list ID if not provided
+      const detectedListId = await autoDetectList(client, formatter, listId, { useCache: true });
+
+      if (!detectedListId) {
+        process.exit(1);
+      }
+
       const spinner = ora('Creating segment...').start();
       try {
         const payload: any = {
@@ -69,7 +92,7 @@ export function createSegmentsCommand(client: CakemailClient, formatter: OutputF
         }
 
         const data = await client.sdk.segmentService.createSegment({
-          listId: parseInt(listId),
+          listId: detectedListId,
           requestBody: payload
         });
         spinner.stop();
@@ -84,11 +107,18 @@ export function createSegmentsCommand(client: CakemailClient, formatter: OutputF
 
   // Update segment
   segments
-    .command('update <list-id> <segment-id>')
-    .description('Update a segment')
+    .command('update [list-id] <segment-id>')
+    .description('Update a segment (auto-detects if only one list exists)')
     .option('-n, --name <name>', 'Segment name')
     .option('-c, --conditions <json>', 'Segment conditions as JSON')
     .action(async (listId, segmentId, options) => {
+      // Auto-detect list ID if not provided
+      const detectedListId = await autoDetectList(client, formatter, listId, { useCache: true });
+
+      if (!detectedListId) {
+        process.exit(1);
+      }
+
       const spinner = ora(`Updating segment ${segmentId}...`).start();
       try {
         const payload: any = {};
@@ -98,7 +128,7 @@ export function createSegmentsCommand(client: CakemailClient, formatter: OutputF
         }
 
         const data = await client.sdk.segmentService.patchSegment({
-          listId: parseInt(listId),
+          listId: detectedListId,
           segmentId: parseInt(segmentId),
           requestBody: payload
         });
@@ -114,19 +144,33 @@ export function createSegmentsCommand(client: CakemailClient, formatter: OutputF
 
   // Delete segment
   segments
-    .command('delete <list-id> <segment-id>')
-    .description('Delete a segment')
-    .option('-f, --force', 'Skip confirmation')
+    .command('delete [list-id] <segment-id>')
+    .description('Delete a segment (auto-detects if only one list exists)')
+    .option('-f, --force', 'Skip confirmation prompt')
     .action(async (listId, segmentId, options) => {
-      if (!options.force) {
-        formatter.info('Use --force to confirm deletion');
+      // Auto-detect list ID if not provided
+      const detectedListId = await autoDetectList(client, formatter, listId, { useCache: true });
+
+      if (!detectedListId) {
         process.exit(1);
+      }
+
+      // Interactive confirmation (unless --force is used)
+      if (!options.force) {
+        const confirmed = await confirmDelete('segment', segmentId, [
+          'Segment will be permanently deleted'
+        ]);
+
+        if (!confirmed) {
+          formatter.info('Deletion cancelled');
+          return;
+        }
       }
 
       const spinner = ora(`Deleting segment ${segmentId}...`).start();
       try {
         await client.sdk.segmentService.deleteSegment({
-          listId: parseInt(listId),
+          listId: detectedListId,
           segmentId: parseInt(segmentId)
         });
         spinner.stop();
@@ -140,15 +184,22 @@ export function createSegmentsCommand(client: CakemailClient, formatter: OutputF
 
   // List segment contacts
   segments
-    .command('contacts <list-id> <segment-id>')
-    .description('List contacts in a segment')
+    .command('contacts [list-id] <segment-id>')
+    .description('List contacts in a segment (auto-detects if only one list exists)')
     .option('-l, --limit <number>', 'Limit number of results')
     .option('-p, --page <number>', 'Page number')
     .action(async (listId, segmentId, options) => {
+      // Auto-detect list ID if not provided
+      const detectedListId = await autoDetectList(client, formatter, listId, { useCache: true });
+
+      if (!detectedListId) {
+        process.exit(1);
+      }
+
       const spinner = ora('Fetching segment contacts...').start();
       try {
         const params: any = {
-          listId: parseInt(listId),
+          listId: detectedListId,
           segmentId: parseInt(segmentId)
         };
         if (options.limit) params.per_page = parseInt(options.limit);

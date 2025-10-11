@@ -3,6 +3,7 @@ import { CakemailClient } from '../client.js';
 import { OutputFormatter } from '../utils/output.js';
 import ora from 'ora';
 import fs from 'fs';
+import { confirmDelete } from '../utils/confirm.js';
 
 export function createTemplatesCommand(client: CakemailClient, formatter: OutputFormatter): Command {
   const templates = new Command('templates')
@@ -182,11 +183,19 @@ export function createTemplatesCommand(client: CakemailClient, formatter: Output
   templates
     .command('delete <id>')
     .description('Delete a template')
-    .option('-f, --force', 'Skip confirmation')
+    .option('-f, --force', 'Skip confirmation prompt')
     .action(async (id, options) => {
+      // Interactive confirmation (unless --force is used)
       if (!options.force) {
-        formatter.info('Use --force to confirm deletion');
-        process.exit(1);
+        const confirmed = await confirmDelete('template', id, [
+          'Template will be permanently deleted',
+          'Any campaigns using this template may be affected'
+        ]);
+
+        if (!confirmed) {
+          formatter.info('Deletion cancelled');
+          return;
+        }
       }
 
       const spinner = ora(`Deleting template ${id}...`).start();
