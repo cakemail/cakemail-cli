@@ -5,6 +5,102 @@ All notable changes to the Cakemail CLI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2025-10-11
+
+### Added - Analytics & Data Operations (47 new commands)
+
+**Reports & Analytics (12 commands)**
+- `reports campaign <id>` - Campaign analytics and statistics
+- `reports campaign-links <id>` - Link click analytics
+- `reports list <id>` - List growth and engagement statistics
+- `reports account` - Account-wide analytics
+- `reports emails` - Email API statistics with date filtering
+- `reports emails-summary` - Email API activity summary
+- `reports transactional-emails` - Transactional email statistics
+- `reports campaigns-exports` - List campaign report exports
+- `reports export-campaigns` - Create campaign report export
+- `reports campaigns-export <id>` - Get export status
+- `reports download-campaigns-export <id>` - Download export
+- `reports delete-campaigns-export <id>` - Delete export
+
+**Contact Import/Export (9 commands)**
+- Contact import command - Planned for future release (requires CSV parser)
+- `contacts export <list-id>` - Create contacts export with filtering
+- `contacts exports <list-id>` - List all contact exports
+- `contacts export-get <list-id> <export-id>` - Get export status
+- `contacts export-download <list-id> <export-id>` - Download export file
+- `contacts export-delete <list-id> <export-id>` - Delete export
+- `contacts tag <list-id> <contact-id>` - Tag individual contact
+- `contacts untag <list-id> <contact-id>` - Remove tags from contact
+- `contacts tag-bulk <list-id>` - Tag multiple contacts at once
+- `contacts untag-bulk <list-id>` - Remove tags from multiple contacts
+
+**Segments (6 commands)**
+- `segments list <list-id>` - List all segments in a list
+- `segments get <list-id> <segment-id>` - Get segment details
+- `segments create <list-id>` - Create new segment with conditions
+- `segments update <list-id> <segment-id>` - Update segment
+- `segments delete <list-id> <segment-id>` - Delete segment
+- `segments contacts <list-id> <segment-id>` - List contacts in segment
+
+**Custom Attributes (4 commands)**
+- `attributes list <list-id>` - List all custom attributes
+- `attributes get <list-id> <name>` - Get attribute details
+- `attributes create <list-id>` - Create custom attribute (text, number, date, boolean)
+- `attributes delete <list-id> <name>` - Delete custom attribute
+
+**Suppression List (7 commands)**
+- `suppressed list` - List all suppressed email addresses
+- `suppressed add <email>` - Add email to suppression list
+- `suppressed delete <email>` - Remove email from suppression list
+- `suppressed exports` - List suppression exports
+- `suppressed export` - Create suppression list export
+- `suppressed export-get <export-id>` - Get export status
+- `suppressed export-download <export-id>` - Download export
+
+**Extended List Operations (7 commands)**
+- `lists update <id>` - Update list name and parameters
+- `lists archive <id>` - Archive a list
+- `lists accept-policy <id>` - Accept policy for a list
+- `lists forms <id>` - List subscription form endpoints
+- `lists form-create <id>` - Create subscription form endpoint
+- `lists form-delete <list-id> <form-id>` - Delete subscription form
+
+**Extended Email API (2 commands)**
+- `emails logs` - Email API activity logs with filtering
+- `emails tags` - List all email tags
+
+### Changed
+- Coverage increased from 56 to 103 commands (24% → 44% API coverage)
+- Enhanced contact management with bulk tagging operations
+- Improved data portability with import/export capabilities
+
+### Documentation
+- Complete rewrite of API_COVERAGE.md with detailed v1.3 roadmap
+- Added coverage expansion plan for v1.3-v1.5
+- Added priority matrix for feature development
+- Added implementation timeline and effort estimates
+- Updated API coverage table with 25 categories
+- Created UX_IMPLEMENTATION_PLAN.md for future improvements
+
+### Notes
+- All new commands follow SDK-based architecture
+- Maintains backwards compatibility with all v1.2 commands
+- File upload support for contact imports (CSV/JSON)
+- Export operations support async task monitoring
+
+## [1.2.0] - 2025-10-10
+
+### Changed
+- **BREAKING**: Renamed package from `@cakemail-org/cli` to `@cakemail-org/cakemail-cli`
+- **BREAKING**: Renamed Homebrew formula from `cakemail` to `cakemail-cli`
+- Binary name remains `cakemail` for ease of use
+
+### Migration
+- npm users: `npm install -g @cakemail-org/cakemail-cli`
+- Homebrew users: `brew uninstall cakemail && brew install cakemail-cli`
+- Old package `@cakemail-org/cli` deprecated with migration message
+
 ## [1.1.2] - 2025-10-10
 
 ### Changed

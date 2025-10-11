@@ -145,5 +145,53 @@ export function createEmailsCommand(client: CakemailClient, formatter: OutputFor
       }
     });
 
+  // Email API logs
+  emails
+    .command('logs')
+    .description('Get Email API activity logs')
+    .option('--from <date>', 'Start date (YYYY-MM-DD)')
+    .option('--to <date>', 'End date (YYYY-MM-DD)')
+    .option('--tag <tag>', 'Filter by tag')
+    .option('--status <status>', 'Filter by status (delivered, bounced, etc.)')
+    .option('-l, --limit <number>', 'Limit number of results')
+    .option('-p, --page <number>', 'Page number')
+    .action(async (options) => {
+      const spinner = ora('Fetching Email API logs...').start();
+      try {
+        const params: any = {};
+        if (options.from) params.from = options.from;
+        if (options.to) params.to = options.to;
+        if (options.tag) params.tag = options.tag;
+        if (options.status) params.status = options.status;
+        if (options.limit) params.perPage = parseInt(options.limit);
+        if (options.page) params.page = parseInt(options.page);
+
+        const data = await client.sdk.emailApiService.getEmailApiLogs(params);
+        spinner.stop();
+        formatter.output(data);
+      } catch (error: any) {
+        spinner.stop();
+        formatter.error(error.message);
+        process.exit(1);
+      }
+    });
+
+  // List email tags
+  emails
+    .command('tags')
+    .description('List all email tags')
+    .action(async () => {
+      const spinner = ora('Fetching email tags...').start();
+      try {
+        const data = await client.sdk.emailApiService.listEmailTags({});
+        spinner.stop();
+        formatter.output(data);
+      } catch (error: any) {
+        spinner.stop();
+        formatter.error(error.message);
+        process.exit(1);
+      }
+    });
+
   return emails;
 }

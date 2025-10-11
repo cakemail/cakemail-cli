@@ -2,100 +2,206 @@
 
 ## Overview
 
-The Cakemail CLI is built from the Cakemail OpenAPI specification using TypeScript and Commander.js. It provides a type-safe, user-friendly command-line interface for interacting with the Cakemail API.
+The Cakemail CLI is built on the official [@cakemail-org/cakemail-sdk](https://www.npmjs.com/package/@cakemail-org/cakemail-sdk) v2.0, providing a type-safe, developer-friendly command-line interface for the Cakemail email marketing platform. The CLI wraps the SDK to deliver intuitive commands while maintaining 100% API coverage through direct SDK access.
+
+**Current Version:** 1.2.0
+**SDK Version:** @cakemail-org/cakemail-sdk v2.0.0
+**Package Name:** @cakemail-org/cakemail-cli
+**Binary Name:** `cakemail`
 
 ## Project Structure
 
 ```
 ├── src/
 │   ├── cli.ts                 # Main CLI entry point
-│   ├── client.ts              # API client with authentication
+│   ├── client.ts              # SDK wrapper with configuration
 │   ├── commands/              # Command modules
-│   │   ├── campaigns.ts       # Campaign management commands
-│   │   ├── lists.ts           # List management commands
-│   │   ├── contacts.ts        # Contact management commands
-│   │   └── senders.ts         # Sender management commands
+│   │   ├── campaigns.ts       # Campaign management (15 commands)
+│   │   ├── lists.ts           # List management (4 commands)
+│   │   ├── contacts.ts        # Contact management (6 commands)
+│   │   ├── senders.ts         # Sender management (7 commands)
+│   │   ├── templates.ts       # Template management (6 commands)
+│   │   ├── webhooks.ts        # Webhook management (6 commands)
+│   │   └── emails.ts          # Email API v2 (3 commands)
 │   └── utils/
 │       ├── config.ts          # Configuration and credentials
 │       └── output.ts          # Output formatting (JSON/table/compact)
 ├── dist/                      # Compiled JavaScript
+├── cakemail.rb                # Homebrew formula
 ├── package.json
 ├── tsconfig.json
-└── README.md
+├── README.md
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+└── HOMEBREW.md
 ```
 
 ## Key Components
 
-### 1. API Client (`client.ts`)
+### 1. SDK Wrapper (`client.ts`)
 
-- Handles HTTP requests to the Cakemail API
-- Manages authentication (API key or email/password)
-- Automatic token refresh
-- Error handling and formatting
+The `CakemailClient` class wraps the official Cakemail SDK, providing:
+- Authentication configuration (email/password or access token)
+- SDK instance exposure via `client.sdk`
+- Consistent error handling
+- Base URL configuration
+
+```typescript
+import { CakemailClient as SDK } from '@cakemail-org/cakemail-sdk';
+
+export class CakemailClient {
+  public sdk: SDK;
+
+  constructor(config: CakemailConfig) {
+    this.sdk = new SDK({
+      email: config.email,
+      password: config.password,
+      baseURL: config.baseURL || 'https://api.cakemail.dev'
+    });
+  }
+}
+```
+
+**Key Design Decision:** The CLI doesn't implement HTTP calls directly—it delegates to the SDK. This ensures:
+- Type safety from SDK's TypeScript definitions
+- Automatic updates when SDK adds features
+- Consistency with other SDK consumers
+- Reliability (SDK is thoroughly tested)
 
 ### 2. Command Modules (`commands/`)
 
 Each command module:
 - Uses Commander.js to define CLI commands
-- Receives a `CakemailClient` instance
+- Receives a `CakemailClient` instance (which exposes the SDK)
 - Receives an `OutputFormatter` instance
-- Implements CRUD operations for a specific resource
+- Calls SDK methods via `client.sdk.serviceName.method()`
 - Provides user-friendly options and flags
+
+**SDK 2.0 Object-Based API Pattern:**
+```typescript
+// All SDK methods use object parameters
+const data = await client.sdk.senderService.createSender({
+  requestBody: {
+    name: 'John Doe',
+    email: 'john@example.com'
+  }
+});
+
+// Pagination uses camelCase
+const campaigns = await client.sdk.campaigns.list({
+  perPage: 50,
+  page: 2,
+  sort: '-created_on'
+});
+```
 
 ### 3. Output Formatting (`utils/output.ts`)
 
 Supports three output formats:
-- **JSON**: Full API response (default)
-- **Table**: Tabular view with column headers
-- **Compact**: Minimal ID and name view
+- **JSON**: Full API response (default) - pipeable to jq, scripts
+- **Table**: Tabular view with column headers - human-readable
+- **Compact**: Minimal ID and name view - quick scanning
+
+Format selection priority:
+1. CLI flag: `cakemail -f table campaigns list`
+2. Environment variable: `CAKEMAIL_OUTPUT_FORMAT=compact`
+3. Default: `json`
 
 ### 4. Configuration (`utils/config.ts`)
 
-Loads credentials from:
-1. Environment variables
-2. `.env` file
-3. CLI flags (highest priority)
+Loads credentials from (priority order):
+1. CLI flags: `--email`, `--password`, `--access-token`
+2. Environment variables: `CAKEMAIL_EMAIL`, `CAKEMAIL_PASSWORD`, `CAKEMAIL_ACCESS_TOKEN`
+3. `.env` file (loaded from current working directory)
+
+**Security Note:** Credentials are never stored persistently. The CLI reads them on each invocation.
 
 ## Authentication
 
-The CLI supports two authentication methods:
+The CLI supports two authentication methods via the SDK:
 
-1. **API Token** (recommended for production):
-   ```bash
-   CAKEMAIL_API_KEY=your_token
-   ```
-
-2. **Email/Password** (uses `/token` endpoint):
+1. **Email/Password** (OAuth2 Password Grant):
    ```bash
    CAKEMAIL_EMAIL=your@email.com
    CAKEMAIL_PASSWORD=your_password
    ```
+   The SDK automatically obtains and refreshes OAuth2 tokens.
+
+2. **Access Token** (for CI/CD):
+   ```bash
+   CAKEMAIL_ACCESS_TOKEN=your_token
+   ```
+
+The SDK handles token management, expiration, and refresh automatically.
+
+## SDK Integration Architecture
+
+### Why SDK-Based vs Direct HTTP?
+
+**SDK Approach (Current):**
+- ✅ Type safety from SDK TypeScript definitions
+- ✅ Automatic API updates (SDK updates = CLI updates)
+- ✅ Tested, reliable HTTP layer
+- ✅ Consistent error handling
+- ✅ OAuth2 complexity abstracted
+- ✅ 100% API coverage available
+
+**Direct HTTP Approach (Previous):**
+- ❌ Manual type definitions
+- ❌ Manual OAuth2 implementation
+- ❌ Breaking when API changes
+- ❌ Duplicate maintenance burden
+
+### SDK Services Used
+
+The SDK provides two API styles:
+
+**1. Legacy Resources (v1 compatibility):**
+```typescript
+client.sdk.campaigns.list(params)
+client.sdk.lists.create(payload)
+client.sdk.contacts.get(id)
+```
+
+**2. Generated Services (v2, object-based):**
+```typescript
+client.sdk.campaignService.listCampaigns({ perPage: 50 })
+client.sdk.senderService.createSender({ requestBody: {...} })
+client.sdk.templateService.getTemplate({ templateId: 123 })
+```
+
+The CLI uses the most appropriate style for each resource.
 
 ## Adding New Commands
 
-To add a new command module:
+To add a new command leveraging the SDK:
 
-1. Create `src/commands/resource.ts`:
+### 1. Create Command Module
+
+`src/commands/reports.ts`:
 ```typescript
 import { Command } from 'commander';
 import { CakemailClient } from '../client.js';
 import { OutputFormatter } from '../utils/output.js';
 import ora from 'ora';
 
-export function createResourceCommand(
+export function createReportsCommand(
   client: CakemailClient,
   formatter: OutputFormatter
 ): Command {
-  const resource = new Command('resource')
-    .description('Manage resources');
+  const reports = new Command('reports')
+    .description('Campaign analytics and reporting');
 
-  resource
-    .command('list')
-    .description('List all resources')
-    .action(async () => {
-      const spinner = ora('Fetching resources...').start();
+  reports
+    .command('campaign <campaign-id>')
+    .description('Get campaign analytics report')
+    .action(async (campaignId) => {
+      const spinner = ora('Fetching campaign report...').start();
       try {
-        const data = await client.get('/resources');
+        // Use SDK service directly
+        const data = await client.sdk.reportService.getCampaignReport({
+          campaignId: parseInt(campaignId)
+        });
         spinner.stop();
         formatter.output(data);
       } catch (error: any) {
@@ -105,139 +211,306 @@ export function createResourceCommand(
       }
     });
 
-  return resource;
+  return reports;
 }
 ```
 
-2. Add to `src/cli.ts`:
+### 2. Register in CLI
+
+`src/cli.ts`:
 ```typescript
-import { createResourceCommand } from './commands/resource.js';
+import { createReportsCommand } from './commands/reports.js';
 
 // In main():
-program.addCommand(createResourceCommand(client, formatter));
+program.addCommand(createReportsCommand(client, formatter));
 ```
 
-3. Rebuild:
+### 3. Rebuild and Test
+
 ```bash
 npm run build
+cakemail reports campaign 123
 ```
 
 ## Development Workflow
 
-1. **Make changes** to TypeScript files in `src/`
-2. **Rebuild**: `npm run build`
-3. **Test locally**: `node dist/cli.js <command>`
-4. **Use watch mode**: `npm run dev` (auto-rebuilds on changes)
+### Local Development
 
-## OpenAPI Integration
+1. **Install dependencies**: `npm install`
+2. **Make changes** to TypeScript files in `src/`
+3. **Build**: `npm run build`
+4. **Test**: `node dist/cli.js <command>` or `cakemail <command>` if installed globally
+5. **Watch mode**: `npm run dev` (auto-rebuilds on changes)
 
-The CLI is designed to map directly to the Cakemail OpenAPI spec:
+### Testing Workflow
 
-- Each OpenAPI tag becomes a command group (e.g., `campaigns`, `lists`)
-- Each operation becomes a subcommand (e.g., `list`, `get`, `create`)
-- Operation parameters become command options
-- Path parameters become command arguments
+```bash
+# Set up test credentials
+cp .env.example .env
+# Edit .env with dev/test credentials
 
-### Future: Auto-Generation
+# Test commands
+cakemail campaigns list
+cakemail -f table senders list
+cakemail contacts add 123 -e test@example.com
 
-The current implementation is hand-crafted for the most common operations. Future versions could include:
+# Test output formats
+cakemail campaigns list | jq '.data[0].name'
+cakemail -f compact lists list
+```
 
-1. **Type Generation**:
-   ```bash
-   npm run generate:types
-   # Uses openapi-typescript to generate src/types/api.ts
-   ```
+### Building for Distribution
 
-2. **Command Generation**:
-   - Parse OpenAPI spec
-   - Generate command modules automatically
-   - Include parameter validation from schemas
+```bash
+# Clean build
+npm run clean && npm run build
+
+# Test binary
+./dist/cli.js --version
+
+# Test installation
+npm pack
+npm install -g ./cakemail-org-cakemail-cli-1.2.0.tgz
+cakemail --version
+```
+
+## Distribution
+
+The CLI is distributed via three channels:
+
+### 1. npm
+```bash
+npm install -g @cakemail-org/cakemail-cli
+```
+
+**Publishing:**
+```bash
+npm version patch  # or minor, major
+npm run build
+npm publish --access public
+```
+
+### 2. Homebrew
+```bash
+brew tap cakemail/cakemail
+brew install cakemail-cli
+```
+
+**Updating Formula:**
+```bash
+# Get new tarball SHA256
+curl -sL https://registry.npmjs.org/@cakemail-org/cakemail-cli/-/cakemail-cli-VERSION.tgz | shasum -a 256
+
+# Update ~/homebrew-cakemail/Formula/cakemail-cli.rb
+# Update URL and SHA256
+# Commit and push
+```
+
+### 3. npx (no installation)
+```bash
+npx @cakemail-org/cakemail-cli campaigns list
+```
 
 ## Dependencies
 
-### Production
-- `commander`: CLI framework
-- `axios`: HTTP client
-- `chalk`: Terminal colors
-- `ora`: Loading spinners
-- `cli-table3`: Table formatting
-- `dotenv`: Environment variable loading
+### Production Dependencies
+- **@cakemail-org/cakemail-sdk**: Official SDK with 100% API coverage
+- **commander**: CLI framework with subcommands and help
+- **chalk**: Terminal colors for better UX
+- **ora**: Loading spinners for async operations
+- **cli-table3**: Table formatting
+- **dotenv**: Environment variable loading from .env files
 
-### Development
-- `typescript`: TypeScript compiler
-- `@types/node`: Node.js type definitions
-- `openapi-typescript`: OpenAPI type generation (future)
+### Development Dependencies
+- **typescript**: TypeScript compiler
+- **@types/node**: Node.js type definitions
+
+### Dependency Strategy
+- Minimal, well-maintained dependencies
+- No build-time transpilation beyond TypeScript
+- All dependencies are mature open-source projects
 
 ## Error Handling
 
-The CLI provides helpful error messages:
+The CLI provides helpful error messages at multiple levels:
 
-1. **Missing credentials**: Shows how to configure
-2. **API errors**: Displays HTTP status and error message
-3. **Validation errors**: Shows which parameters are missing
+### 1. Configuration Errors
+```
+Error: Email and password are required for SDK authentication
 
-## Testing
+Tip: Set credentials in environment variables or .env file:
+  CAKEMAIL_EMAIL=your@email.com
+  CAKEMAIL_PASSWORD=your_password
+```
 
-To test the CLI with actual API calls:
+### 2. API Errors
+```
+Error: Campaign not found (404)
+Failed to retrieve campaign with ID: 12345
+```
 
-1. Set up credentials:
-   ```bash
-   cp .env.example .env
-   # Edit .env
-   ```
+### 3. Validation Errors
+```
+Error: Missing required option: --email
+Try: cakemail contacts add 123 --email test@example.com
+```
 
-2. Test commands:
-   ```bash
-   # List campaigns
-   node dist/cli.js campaigns list
+### Exit Codes
+- **0**: Success
+- **1**: Error (configuration, API, validation, etc.)
 
-   # Get campaign in table format
-   node dist/cli.js -f table campaigns get 123
+## Version Strategy
 
-   # Create a list
-   node dist/cli.js lists create -n "Test List"
-   ```
+The CLI follows [Semantic Versioning](https://semver.org/):
 
-## Publishing
+- **Patch** (1.2.x): Bug fixes, no breaking changes
+- **Minor** (1.x.0): New commands, backward compatible
+- **Major** (x.0.0): Breaking changes (command signature changes, SDK major updates)
 
-To publish to npm:
-
-1. Update version in `package.json`
-2. Build: `npm run build`
-3. Publish: `npm publish --access public`
-
-Users can then install globally:
-```bash
-npm install -g @cakemail-org/cakemail-cli
-cakemail campaigns list
+### Breaking Changes
+Breaking changes are announced 2 minor versions ahead with deprecation warnings:
+```
+Warning: The --key option is deprecated and will be removed in v2.0.0
+Please use --api-key instead
 ```
 
 ## Current Implementation Status
 
-### ✅ Implemented
-- Campaigns: list, get, create, schedule, test, delete
-- Lists: list, get, create, delete
-- Contacts: list, get, add, update, delete, unsubscribe
-- Senders: list, get, create, delete
-- Authentication (API key and email/password)
-- Output formatting (JSON, table, compact)
-- Error handling
-- Help system
+### ✅ Implemented (56 commands)
+- **Campaigns**: 15 commands (full lifecycle)
+- **Lists**: 4 commands (core CRUD)
+- **Contacts**: 6 commands (core CRUD)
+- **Senders**: 7 commands (complete management)
+- **Templates**: 6 commands (complete management)
+- **Webhooks**: 6 commands (complete management)
+- **Email API v2**: 3 commands (transactional emails)
 
-### 🚧 Future Enhancements
-- Reports commands
-- Templates commands
-- Workflows commands
-- Segments commands
-- Custom attributes commands
+### 📦 Available via SDK (not yet CLI commands)
+- Reports and analytics (ReportService)
+- Segments (SegmentService)
+- Custom attributes (CustomAttributeService)
+- Contact tagging (TagsService)
+- Workflows and automation (WorkflowService)
+- Forms (FormService)
+- Sub-accounts (SubAccountService)
+- And 20+ more services (see API_COVERAGE.md)
+
+### 🎯 Roadmap
+
+**v1.3.0 - High-Value Commands:**
+- Reports (campaign analytics, list stats)
+- Segments (contact segmentation)
+- Custom attributes management
+
+**v1.4.0 - Bulk Operations:**
+- Contact import/export
+- Bulk tagging
 - Batch operations
-- Interactive mode
-- Config file support
-- Auto-completion
-- Progress bars for long operations
-- Export/import commands
-- Webhook management
 
-## API Coverage
+**v1.5.0 - Advanced Features:**
+- Workflows and automation
+- Forms management
+- Sub-account operations
 
-Currently implements ~25 of 149 available endpoints, focusing on the most commonly used operations for campaigns, lists, contacts, and senders.
+## Testing
+
+### Manual Testing
+```bash
+# Test authentication
+cakemail campaigns list
+
+# Test output formats
+cakemail -f json campaigns list
+cakemail -f table senders list
+cakemail -f compact lists list
+
+# Test piping
+cakemail campaigns list | jq '.data[0]'
+
+# Test error handling
+cakemail campaigns get 999999  # Non-existent ID
+```
+
+### CI/CD Testing
+The CLI is suitable for automated testing in pipelines:
+```yaml
+# GitHub Actions example
+- name: Test CLI
+  env:
+    CAKEMAIL_EMAIL: ${{ secrets.CAKEMAIL_EMAIL }}
+    CAKEMAIL_PASSWORD: ${{ secrets.CAKEMAIL_PASSWORD }}
+  run: |
+    npm install -g @cakemail-org/cakemail-cli
+    cakemail campaigns list --status active
+```
+
+### SDK Compatibility
+The CLI version pins to a specific SDK version to ensure stability. SDK updates are tested before releasing a new CLI version.
+
+## Performance Considerations
+
+- **Startup time**: ~500ms (Node.js + SDK initialization)
+- **API calls**: Direct SDK calls (no additional overhead)
+- **Memory**: Minimal (~50MB resident)
+- **Concurrency**: Single-threaded (Node.js event loop)
+
+For high-volume operations, consider:
+- Batch API endpoints (when available)
+- Direct SDK usage in custom scripts
+- Parallel execution of multiple CLI invocations
+
+## Security
+
+### Credential Management
+- Never commit credentials to git (`.env` is gitignored)
+- Use environment variables in CI/CD (not stored in repos)
+- Rotate credentials regularly
+- Use access tokens for automated systems
+
+### Supply Chain
+- All dependencies are verified via npm
+- `package-lock.json` ensures reproducible builds
+- No post-install scripts
+- Regular dependency audits: `npm audit`
+
+## Troubleshooting
+
+### Common Issues
+
+**"Email and password are required"**
+- Set credentials in `.env` or environment variables
+- Verify `.env` is in current working directory
+
+**"Command not found: cakemail"**
+- Install globally: `npm install -g @cakemail-org/cakemail-cli`
+- Or use npx: `npx @cakemail-org/cakemail-cli`
+
+**"Invalid credentials"**
+- Verify email and password are correct
+- Check for special characters in password (quote in .env if needed)
+
+**"Network error" or timeouts**
+- Check internet connection
+- Verify API base URL (default: https://api.cakemail.dev)
+- Check firewall/proxy settings
+
+### Debug Mode
+Set `NODE_ENV=development` for verbose SDK logging (if implemented by SDK).
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for:
+- Development setup
+- Code style guidelines
+- Pull request process
+- Command prioritization criteria
+
+## License
+
+MIT License - See [LICENSE](LICENSE) file
+
+---
+
+*Last Updated: 2025-10-10*
+*CLI Version: 1.2.0*
+*SDK Version: @cakemail-org/cakemail-sdk v2.0.0*

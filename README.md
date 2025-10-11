@@ -370,6 +370,146 @@ cakemail webhooks archive <id>
 cakemail webhooks unarchive <id>
 ```
 
+#### Reports & Analytics (NEW in v1.3)
+
+```bash
+# Campaign analytics
+cakemail reports campaign <id>
+cakemail reports campaign-links <id>
+
+# List analytics
+cakemail reports list <id>
+
+# Account analytics
+cakemail reports account
+
+# Email API statistics
+cakemail reports emails --from 2025-01-01 --to 2025-12-31
+cakemail reports emails-summary
+cakemail reports transactional-emails
+
+# Export campaign reports
+cakemail reports export-campaigns --from 2025-01-01 --status delivered
+cakemail reports campaigns-exports
+cakemail reports campaigns-export <export-id>
+cakemail reports download-campaigns-export <export-id>
+cakemail reports delete-campaigns-export <export-id> --force
+```
+
+#### Segments (NEW in v1.3)
+
+```bash
+# List all segments
+cakemail segments list <list-id>
+
+# Get segment details
+cakemail segments get <list-id> <segment-id>
+
+# Create a segment
+cakemail segments create <list-id> -n "Active Users" -c '{"conditions":[...]}'
+
+# Update segment
+cakemail segments update <list-id> <segment-id> -n "New Name"
+
+# Delete segment
+cakemail segments delete <list-id> <segment-id> --force
+
+# List contacts in segment
+cakemail segments contacts <list-id> <segment-id>
+```
+
+#### Custom Attributes (NEW in v1.3)
+
+```bash
+# List all custom attributes
+cakemail attributes list <list-id>
+
+# Get attribute details
+cakemail attributes get <list-id> <attribute-name>
+
+# Create custom attribute
+cakemail attributes create <list-id> -n "company" -t text
+cakemail attributes create <list-id> -n "age" -t number
+cakemail attributes create <list-id> -n "subscribed_date" -t date
+cakemail attributes create <list-id> -n "active" -t boolean
+
+# Delete attribute
+cakemail attributes delete <list-id> <attribute-name> --force
+```
+
+#### Suppression List (NEW in v1.3)
+
+```bash
+# List suppressed emails
+cakemail suppressed list
+
+# Add to suppression list
+cakemail suppressed add bounced@example.com
+
+# Remove from suppression list
+cakemail suppressed delete recovered@example.com --force
+
+# Export suppressed emails
+cakemail suppressed export
+cakemail suppressed exports
+cakemail suppressed export-get <export-id>
+cakemail suppressed export-download <export-id>
+```
+
+#### Contact Import/Export & Tagging (NEW in v1.3)
+
+```bash
+# Import contacts from file (TODO: Not yet implemented - requires CSV/JSON parser)
+
+# Export contacts
+cakemail contacts export <list-id> --status subscribed --format csv
+cakemail contacts exports <list-id>
+cakemail contacts export-get <list-id> <export-id>
+cakemail contacts export-download <list-id> <export-id>
+cakemail contacts export-delete <list-id> <export-id> --force
+
+# Tag single contact
+cakemail contacts tag <list-id> <contact-id> -t "vip,premium"
+
+# Untag single contact
+cakemail contacts untag <list-id> <contact-id> -t "trial"
+
+# Tag multiple contacts
+cakemail contacts tag-bulk <list-id> -c "1,2,3,4,5" -t "segment-a,active"
+
+# Untag multiple contacts
+cakemail contacts untag-bulk <list-id> -c "1,2,3,4,5" -t "old-tag"
+```
+
+#### Extended List Operations (NEW in v1.3)
+
+```bash
+# Update list
+cakemail lists update <id> -n "New Name" -l en_US
+
+# Archive list
+cakemail lists archive <id>
+
+# Accept list policy
+cakemail lists accept-policy <id>
+
+# Manage subscription forms
+cakemail lists forms <id>
+cakemail lists form-create <id> -d "example.com" -n "Signup Form"
+cakemail lists form-delete <list-id> <form-id> --force
+```
+
+#### Extended Email API (NEW in v1.3)
+
+```bash
+# View Email API logs
+cakemail emails logs --from 2025-01-01 --to 2025-12-31
+cakemail emails logs --tag newsletter --status delivered
+
+# List all email tags
+cakemail emails tags
+```
+
 ## Examples
 
 ```bash

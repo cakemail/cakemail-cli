@@ -11,6 +11,10 @@ import { createSendersCommand } from './commands/senders.js';
 import { createWebhooksCommand } from './commands/webhooks.js';
 import { createEmailsCommand } from './commands/emails.js';
 import { createTemplatesCommand } from './commands/templates.js';
+import { createReportsCommand } from './commands/reports.js';
+import { createSegmentsCommand } from './commands/segments.js';
+import { createAttributesCommand } from './commands/attributes.js';
+import { createSuppressedCommand } from './commands/suppressed.js';
 import chalk from 'chalk';
 
 async function main() {
@@ -19,7 +23,7 @@ async function main() {
   program
     .name('cakemail')
     .description('Official Cakemail CLI - Command-line interface for the Cakemail API')
-    .version('1.2.0')
+    .version('1.3.0')
     .option('-f, --format <format>', 'Output format (json|table|compact)')
     .option('--access-token <token>', 'Cakemail access token (overrides env)')
     .option('--email <email>', 'Cakemail account email (overrides env)')
@@ -51,6 +55,10 @@ async function main() {
     program.addCommand(createWebhooksCommand(client, formatter));
     program.addCommand(createEmailsCommand(client, formatter));
     program.addCommand(createTemplatesCommand(client, formatter));
+    program.addCommand(createReportsCommand(client, formatter));
+    program.addCommand(createSegmentsCommand(client, formatter));
+    program.addCommand(createAttributesCommand(client, formatter));
+    program.addCommand(createSuppressedCommand(client, formatter));
 
     // Parse
     await program.parseAsync(process.argv);

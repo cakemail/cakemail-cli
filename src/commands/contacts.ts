@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import { CakemailClient } from '../client.js';
 import { OutputFormatter } from '../utils/output.js';
 import ora from 'ora';
+import { readFileSync } from 'fs';
 
 export function createContactsCommand(client: CakemailClient, formatter: OutputFormatter): Command {
   const contacts = new Command('contacts')
@@ -150,6 +151,236 @@ export function createContactsCommand(client: CakemailClient, formatter: OutputF
         await client.sdk.contacts.unsubscribe(parseInt(contactId), parseInt(listId));
         spinner.stop();
         formatter.success(`Contact ${contactId} unsubscribed`);
+      } catch (error: any) {
+        spinner.stop();
+        formatter.error(error.message);
+        process.exit(1);
+      }
+    });
+
+  // Import contacts - TODO: Implement CSV/JSON parsing
+  // The SDK expects structured ImportContactData[], not raw file content
+  // Need to add CSV/JSON parser and convert to proper format
+  // contacts
+  //   .command('import <list-id>')
+  //   .description('Import contacts from a file')
+  //   .requiredOption('-f, --file <path>', 'CSV or JSON file path')
+  //   .option('--update-existing', 'Update existing contacts')
+  //   .action(async (listId, options) => {
+  //     // TODO: Parse CSV/JSON file and convert to ImportContactData[]
+  //   });
+
+  // Export contacts
+  contacts
+    .command('export <list-id>')
+    .description('Create a contacts export')
+    .option('--status <status>', 'Filter by status (subscribed, unsubscribed, etc.)')
+    .action(async (listId, options) => {
+      const spinner = ora('Creating contacts export...').start();
+      try {
+        const params: any = {
+          listId: parseInt(listId)
+        };
+        if (options.status) params.filter = `status==${options.status}`;
+
+        const data = await client.sdk.contactService.exportContacts(params);
+        spinner.stop();
+        formatter.success('Contacts export created');
+        formatter.output(data);
+      } catch (error: any) {
+        spinner.stop();
+        formatter.error(error.message);
+        process.exit(1);
+      }
+    });
+
+  // List exports
+  contacts
+    .command('exports <list-id>')
+    .description('List contact exports for a list')
+    .option('-l, --limit <number>', 'Limit number of results')
+    .option('-p, --page <number>', 'Page number')
+    .action(async (listId, options) => {
+      const spinner = ora('Fetching exports...').start();
+      try {
+        const params: any = {
+          listId: parseInt(listId)
+        };
+        if (options.limit) params.per_page = parseInt(options.limit);
+        if (options.page) params.page = parseInt(options.page);
+
+        const data = await client.sdk.contactService.listContactsExports(params);
+        spinner.stop();
+        formatter.output(data);
+      } catch (error: any) {
+        spinner.stop();
+        formatter.error(error.message);
+        process.exit(1);
+      }
+    });
+
+  // Get export
+  contacts
+    .command('export-get <list-id> <export-id>')
+    .description('Get a contacts export status')
+    .action(async (listId, exportId) => {
+      const spinner = ora(`Fetching export ${exportId}...`).start();
+      try {
+        const data = await client.sdk.contactService.getContactsExport({
+          listId: parseInt(listId),
+          exportId: exportId
+        });
+        spinner.stop();
+        formatter.output(data);
+      } catch (error: any) {
+        spinner.stop();
+        formatter.error(error.message);
+        process.exit(1);
+      }
+    });
+
+  // Download export
+  contacts
+    .command('export-download <list-id> <export-id>')
+    .description('Download a contacts export')
+    .action(async (listId, exportId) => {
+      const spinner = ora(`Downloading export ${exportId}...`).start();
+      try {
+        const data = await client.sdk.contactService.downloadContactsExport({
+          listId: parseInt(listId),
+          exportId: exportId
+        });
+        spinner.stop();
+        formatter.success('Export downloaded');
+        formatter.output(data);
+      } catch (error: any) {
+        spinner.stop();
+        formatter.error(error.message);
+        process.exit(1);
+      }
+    });
+
+  // Delete export
+  contacts
+    .command('export-delete <list-id> <export-id>')
+    .description('Delete a contacts export')
+    .option('-f, --force', 'Skip confirmation')
+    .action(async (listId, exportId, options) => {
+      if (!options.force) {
+        formatter.info('Use --force to confirm deletion');
+        process.exit(1);
+      }
+
+      const spinner = ora(`Deleting export ${exportId}...`).start();
+      try {
+        await client.sdk.contactService.deleteContactsExport({
+          listId: parseInt(listId),
+          exportId: exportId
+        });
+        spinner.stop();
+        formatter.success(`Export ${exportId} deleted`);
+      } catch (error: any) {
+        spinner.stop();
+        formatter.error(error.message);
+        process.exit(1);
+      }
+    });
+
+  // Tag single contact
+  contacts
+    .command('tag <list-id> <contact-id>')
+    .description('Tag a contact')
+    .requiredOption('-t, --tags <tags>', 'Comma-separated tags')
+    .action(async (listId, contactId, options) => {
+      const spinner = ora(`Tagging contact ${contactId}...`).start();
+      try {
+        const tags = options.tags.split(',').map((t: string) => t.trim());
+        await client.sdk.contactService.tagContact({
+          listId: parseInt(listId),
+          contactId: parseInt(contactId),
+          requestBody: { tags }
+        });
+        spinner.stop();
+        formatter.success(`Contact ${contactId} tagged`);
+      } catch (error: any) {
+        spinner.stop();
+        formatter.error(error.message);
+        process.exit(1);
+      }
+    });
+
+  // Untag single contact
+  contacts
+    .command('untag <list-id> <contact-id>')
+    .description('Remove tags from a contact')
+    .requiredOption('-t, --tags <tags>', 'Comma-separated tags to remove')
+    .action(async (listId, contactId, options) => {
+      const spinner = ora(`Untagging contact ${contactId}...`).start();
+      try {
+        const tags = options.tags.split(',').map((t: string) => t.trim());
+        await client.sdk.contactService.untagContact({
+          listId: parseInt(listId),
+          contactId: parseInt(contactId),
+          requestBody: { tags }
+        });
+        spinner.stop();
+        formatter.success(`Tags removed from contact ${contactId}`);
+      } catch (error: any) {
+        spinner.stop();
+        formatter.error(error.message);
+        process.exit(1);
+      }
+    });
+
+  // Tag multiple contacts
+  contacts
+    .command('tag-bulk <list-id>')
+    .description('Tag multiple contacts')
+    .requiredOption('-c, --contacts <ids>', 'Comma-separated contact IDs')
+    .requiredOption('-t, --tags <tags>', 'Comma-separated tags')
+    .action(async (listId, options) => {
+      const spinner = ora('Tagging contacts...').start();
+      try {
+        const contactIds = options.contacts.split(',').map((id: string) => parseInt(id.trim()));
+        const tags = options.tags.split(',').map((t: string) => t.trim());
+
+        await client.sdk.contactService.tagMultipleContacts({
+          listId: parseInt(listId),
+          requestBody: {
+            contact_ids: contactIds,
+            tags
+          }
+        });
+        spinner.stop();
+        formatter.success(`${contactIds.length} contacts tagged`);
+      } catch (error: any) {
+        spinner.stop();
+        formatter.error(error.message);
+        process.exit(1);
+      }
+    });
+
+  // Untag multiple contacts
+  contacts
+    .command('untag-bulk <list-id>')
+    .description('Remove tags from multiple contacts')
+    .requiredOption('-c, --contacts <ids>', 'Comma-separated contact IDs')
+    .requiredOption('-t, --tags <tags>', 'Comma-separated tags to remove')
+    .action(async (listId, options) => {
+      const spinner = ora('Untagging contacts...').start();
+      try {
+        const contactIds = options.contacts.split(',').map((id: string) => parseInt(id.trim()));
+        const tags = options.tags.split(',').map((t: string) => t.trim());
+
+        await client.sdk.contactService.untagMultipleContacts({
+          listId: parseInt(listId),
+          requestBody: {
+            contact_ids: contactIds,
+            tags
+          }
+        });
+        spinner.stop();
+        formatter.success(`Tags removed from ${contactIds.length} contacts`);
       } catch (error: any) {
         spinner.stop();
         formatter.error(error.message);
