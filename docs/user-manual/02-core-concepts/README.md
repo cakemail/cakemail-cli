@@ -4,11 +4,17 @@ This section covers the fundamental concepts you need to understand to work effe
 
 ## In This Section
 
+### [Profile System](./profile-system.md)
+Discover how the CLI adapts to your workflow with three user profiles: developer, marketer, and balanced.
+
 ### [Accounts](./accounts.md)
 Learn about account management, switching between accounts, and multi-account workflows.
 
 ### [Authentication Methods](./authentication-methods.md)
 Understand the difference between access token and email/password authentication.
+
+### [Smart Defaults](./smart-defaults.md)
+Learn how the CLI auto-detects resources like lists and senders to streamline your workflow.
 
 ### [Pagination & Filtering](./pagination-filtering.md)
 Master list operations with pagination, filtering, sorting, and search.

@@ -4,16 +4,26 @@ Learn how to authenticate with the Cakemail API using the CLI.
 
 ## Overview
 
-The Cakemail CLI supports two authentication methods:
+The Cakemail CLI provides **seamless authentication** - just run any command, and if credentials are missing, you'll be prompted to provide them. No separate setup command required!
 
+**Authentication Methods:**
 1. **Access Token** (recommended for automation)
 2. **Email & Password** (recommended for interactive use)
 
-You can provide credentials via:
+**Credential Sources:**
+- Interactive prompts (easiest - v1.4.0+)
+- Configuration file (`~/.cakemail/config.json`)
 - Environment variables
 - `.env` file
 - Command-line options (for one-off overrides)
-- Interactive prompts (when no credentials are found)
+
+**First-Time Experience (v1.4.0+):**
+```bash
+$ cakemail campaigns list
+# If no credentials found, you'll be prompted interactively
+# Credentials are validated and saved automatically
+# No separate setup needed!
+```
 
 ## Authentication Methods
 
@@ -85,22 +95,51 @@ CAKEMAIL_PASSWORD=your_password
 cakemail --email your@email.com --password your_password campaigns list
 ```
 
-**Option D: Interactive Prompts**
+**Option D: Interactive Prompts (v1.4.0+)**
 
-If no credentials are found, the CLI will prompt you interactively:
+If no credentials are found, the CLI will prompt you interactively on first use:
 
 ```bash
-cakemail campaigns list
-# You'll be prompted for email and password
+$ cakemail campaigns list
+
+Welcome to Cakemail CLI!
+
+? Email: user@example.com
+? Password: [hidden]
+
+✓ Authentication successful
+✓ Found 3 accessible accounts
+✓ Current account: My Marketing Account (12345)
+
+? Select your preferred profile:
+  ❯ Balanced - Best of both worlds (recommended)
+    Developer - Fast, non-interactive, JSON output
+    Marketer - Interactive, guided, safe
+
+✓ Profile set to: balanced
+✓ Credentials saved to ~/.cakemail/config.json
+
+[... proceeds with your command ...]
 ```
+
+**First-Time Setup:**
+- Credentials are validated via API
+- Automatically saved to `~/.cakemail/config.json`
+- You'll select a user profile (developer, marketer, or balanced)
+- No separate setup command required
+
+**Subsequent Commands:**
+- Credentials loaded automatically from config
+- No prompts needed
+- Just run your commands
 
 ---
 
-## Account Management
+## Multi-Tenant Account Management (v1.4.0+)
 
-If you have access to multiple Cakemail accounts, you can list and switch between them.
+If you have access to multiple Cakemail accounts (parent account + sub-accounts), you can easily list and switch between them.
 
-### List Available Accounts
+### List All Accessible Accounts
 
 ```bash
 cakemail account list
@@ -113,20 +152,24 @@ cakemail account list
 ├────────────┼─────────────────────────┼──────────┼────────────────────┤
 │ 12345      │ My Marketing Account    │ ✓        │ 2024-01-15         │
 │ 67890      │ Client Account          │          │ 2024-03-20         │
+│ 11111      │ Partner Sub-Account     │          │ 2024-05-10         │
 └────────────┴─────────────────────────┴──────────┴────────────────────┘
+
+Showing 3 accessible accounts (parent + sub-accounts)
 ```
 
 ### View Current Account
 
 ```bash
-cakemail account current
+cakemail account show
 ```
 
 **Example Output:**
 ```json
 {
-  "account_id": 12345,
-  "account_name": "My Marketing Account",
+  "id": 12345,
+  "name": "My Marketing Account",
+  "status": "active",
   "created_on": "2024-01-15T10:00:00Z"
 }
 ```
@@ -134,22 +177,56 @@ cakemail account current
 ### Switch Between Accounts
 
 ```bash
-cakemail account switch <account-id>
+cakemail account use <account-id>
 ```
 
 **Example:**
 ```bash
-cakemail account switch 67890
-# Current account switched to: Client Account (67890)
+$ cakemail account use 67890
+✓ Switched to account: Client Account (67890)
+✓ Context saved to ~/.cakemail/config.json
 ```
+
+**Context Persistence:**
+- Account context saved in `CAKEMAIL_CURRENT_ACCOUNT_ID`
+- Persists between CLI sessions
+- Applies to all subsequent commands
 
 ### Use Specific Account for Single Command
 
-Override the current account for a single command:
+Override the current account context for a single command:
 
 ```bash
 cakemail --account 67890 campaigns list
 ```
+
+This doesn't change your saved account context - just overrides it for this one command.
+
+### Test Current Credentials
+
+Verify your authentication and account access:
+
+```bash
+cakemail account test
+```
+
+**Example Output:**
+```
+✓ Authentication successful
+✓ Connected as: user@example.com
+✓ Current account: My Marketing Account (12345)
+✓ API access: OK
+```
+
+### Logout
+
+Remove stored credentials:
+
+```bash
+cakemail account logout --force
+```
+
+**Warning:** This removes credentials from `~/.cakemail/config.json`. You'll need to authenticate again on next use.
 
 ---
 

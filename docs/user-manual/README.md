@@ -16,8 +16,10 @@ Learn how to install, configure, and start using the Cakemail CLI.
 ### [2. Core Concepts](./02-core-concepts/README.md)
 Understand the fundamental concepts behind the CLI.
 
+- [Profile System](./02-core-concepts/profile-system.md)
 - [Accounts](./02-core-concepts/accounts.md)
 - [Authentication Methods](./02-core-concepts/authentication-methods.md)
+- [Smart Defaults](./02-core-concepts/smart-defaults.md)
 - [Pagination & Filtering](./02-core-concepts/pagination-filtering.md)
 - [Error Handling](./02-core-concepts/error-handling.md)
 - [API Coverage](./02-core-concepts/api-coverage.md)
@@ -76,6 +78,7 @@ Advanced techniques for power users.
 ### [9. Command Reference](./09-command-reference/README.md)
 Complete reference for all CLI commands.
 
+- [Config Commands](./09-command-reference/config.md)
 - [Account Commands](./09-command-reference/account.md)
 - [Campaign Commands](./09-command-reference/campaigns.md)
 - [Contact Commands](./09-command-reference/contacts.md)
@@ -115,7 +118,7 @@ Additional resources and references.
 
 ## About This Manual
 
-This manual covers version 1.4.0 of the Cakemail CLI. For the latest updates, see the [Changelog](./11-appendix/changelog.md).
+This manual covers version 1.5.0 of the Cakemail CLI. For the latest updates, see the [Changelog](./11-appendix/changelog.md).
 
 ## Getting Help
 

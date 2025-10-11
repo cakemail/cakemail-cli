@@ -16,6 +16,10 @@ import { createSegmentsCommand } from './commands/segments.js';
 import { createAttributesCommand } from './commands/attributes.js';
 import { createSuppressedCommand } from './commands/suppressed.js';
 import { createAccountCommand } from './commands/account.js';
+import { createTagsCommand } from './commands/tags.js';
+import { createInterestsCommand } from './commands/interests.js';
+import { createLogsCommand } from './commands/logs.js';
+import { createTransactionalTemplatesCommand } from './commands/transactional-templates.js';
 import { registerConfigCommands } from './commands/config.js';
 import chalk from 'chalk';
 
@@ -25,7 +29,7 @@ async function main() {
   program
     .name('cakemail')
     .description('Official Cakemail CLI - Command-line interface for the Cakemail API')
-    .version('1.5.0')
+    .version('1.6.0')
     .option('-f, --format <format>', 'Output format (json|table|compact)')
     .option('--profile <type>', 'Override profile for this command (developer|marketer|balanced)')
     .option('--batch', 'Run in batch/scripting mode (disable all interactive prompts)')
@@ -101,6 +105,10 @@ async function main() {
     program.addCommand(createSegmentsCommand(client, formatter));
     program.addCommand(createAttributesCommand(client, formatter));
     program.addCommand(createSuppressedCommand(client, formatter));
+    program.addCommand(createTagsCommand(client, formatter));
+    program.addCommand(createInterestsCommand(client, formatter));
+    program.addCommand(createLogsCommand(client, formatter));
+    program.addCommand(createTransactionalTemplatesCommand(client, formatter));
 
     // Parse
     await program.parseAsync(process.argv);

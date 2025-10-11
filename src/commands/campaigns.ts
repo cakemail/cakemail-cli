@@ -485,5 +485,96 @@ export function createCampaignsCommand(client: CakemailClient, formatter: Output
       }
     });
 
+  // Render campaign
+  campaigns
+    .command('render <id>')
+    .description('Render campaign HTML preview')
+    .option('-c, --contact-id <id>', 'Contact ID for personalization')
+    .action(async (id, options) => {
+      const spinner = ora(`Rendering campaign ${id}...`).start();
+      try {
+        const data = await client.sdk.campaignService.renderCampaign({
+          campaignId: parseInt(id),
+          contactId: options.contactId ? parseInt(options.contactId) : undefined
+        });
+        spinner.stop();
+        formatter.success(`Campaign ${id} rendered successfully`);
+        formatter.output(data);
+      } catch (error: any) {
+        spinner.stop();
+        displayError(error, {
+          command: 'campaigns render',
+          resource: 'campaign',
+          resourceId: id,
+          operation: 'render'
+        });
+        process.exit(1);
+      }
+    });
+
+  // Get campaign revisions
+  campaigns
+    .command('revisions <id>')
+    .description('List campaign revisions')
+    .option('-p, --page <number>', 'Page number')
+    .option('--per-page <number>', 'Results per page')
+    .option('--with-count', 'Include total count')
+    .action(async (id, options) => {
+      const spinner = ora(`Fetching revisions for campaign ${id}...`).start();
+      try {
+        const params: any = {
+          campaignId: parseInt(id)
+        };
+        if (options.page) params.page = parseInt(options.page);
+        if (options.perPage) params.perPage = parseInt(options.perPage);
+        if (options.withCount) params.withCount = true;
+
+        const data = await client.sdk.campaignService.getCampaignRevisions(params);
+        spinner.stop();
+        formatter.output(data);
+      } catch (error: any) {
+        spinner.stop();
+        displayError(error, {
+          command: 'campaigns revisions',
+          resource: 'campaign',
+          resourceId: id,
+          operation: 'fetch revisions'
+        });
+        process.exit(1);
+      }
+    });
+
+  // List campaign blueprints
+  campaigns
+    .command('blueprints')
+    .description('List all campaign blueprints')
+    .option('-p, --page <number>', 'Page number')
+    .option('--per-page <number>', 'Results per page')
+    .option('--with-count', 'Include total count')
+    .option('--filter <filter>', 'Filter (e.g., "name==Template;is_owner")')
+    .option('--sort <sort>', 'Sort by field: +name, -created_on, etc.')
+    .action(async (options) => {
+      const spinner = ora('Fetching campaign blueprints...').start();
+      try {
+        const params: any = {};
+        if (options.page) params.page = parseInt(options.page);
+        if (options.perPage) params.perPage = parseInt(options.perPage);
+        if (options.withCount) params.withCount = true;
+        if (options.filter) params.filter = options.filter;
+        if (options.sort) params.sort = options.sort;
+
+        const data = await client.sdk.campaignBlueprintService.listCampaignBlueprints(params);
+        spinner.stop();
+        formatter.output(data);
+      } catch (error: any) {
+        spinner.stop();
+        displayError(error, {
+          command: 'campaigns blueprints',
+          operation: 'list blueprints'
+        });
+        process.exit(1);
+      }
+    });
+
   return campaigns;
 }

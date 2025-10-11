@@ -4,6 +4,9 @@ Complete reference documentation for all Cakemail CLI commands.
 
 ## Command Categories
 
+### [Config Commands](./config.md)
+Manage CLI configuration and profile settings (v1.5.0+).
+
 ### [Account Commands](./account.md)
 Manage Cakemail accounts and switch between them.
 
@@ -50,6 +53,8 @@ cakemail [global-options] <command> <subcommand> [arguments] [options]
 
 ### Global Options
 - `-f, --format <format>` - Output format (json|table|compact)
+- `--profile <type>` - Override profile for this command (v1.5.0+)
+- `--batch` - Force batch mode, disable all interactivity (v1.5.0+)
 - `--access-token <token>` - Override access token
 - `--email <email>` - Override email
 - `--password <password>` - Override password
@@ -90,7 +95,8 @@ cakemail <resource> delete <id> --force
 
 | Resource | Commands | Description |
 |----------|----------|-------------|
-| account | list, switch, current | Manage accounts |
+| config | profile, profile-set, preview, set, reset, show | CLI configuration (v1.5.0+) |
+| account | list, use, show, test, logout | Manage accounts |
 | campaigns | list, get, create, update, schedule, test, delete | Campaign management |
 | contacts | list, get, add, update, delete, unsubscribe | Contact management |
 | lists | list, get, create, update, archive, delete | List management |

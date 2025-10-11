@@ -55,6 +55,46 @@ Set a default account ID for multi-account setups.
 CAKEMAIL_ACCOUNT_ID=12345
 ```
 
+### Profile System (v1.5.0+)
+
+The CLI adapts its behavior to your workflow through profiles. See [Profile System](../02-core-concepts/profile-system.md) for details.
+
+```bash
+# Set your preferred profile (developer | marketer | balanced)
+# This is managed through config commands, not environment variables
+```
+
+**Available Profiles:**
+- **Developer**: Fast, non-interactive, JSON output, no confirmations
+- **Marketer**: Interactive, guided, rich colors, safety confirmations
+- **Balanced**: Auto-detect context, moderate colors (default)
+
+**Profile Management:**
+```bash
+# View current profile
+cakemail config profile
+
+# Switch profile
+cakemail config profile-set developer
+cakemail config profile-set marketer
+cakemail config profile-set balanced
+
+# Preview profile before switching
+cakemail config preview developer
+
+# Customize individual settings
+cakemail config set output_format json
+
+# Reset to profile defaults
+cakemail config reset
+
+# Show complete configuration
+cakemail config show
+```
+
+**Profile Storage:**
+Profile settings are stored in `~/.cakemail/config.json` (not in `.env` file).
+
 ---
 
 ## Configuration Files
@@ -170,6 +210,13 @@ cakemail -f json campaigns list
 cakemail -f table campaigns list
 cakemail -f compact campaigns list
 
+# Profile override (v1.5.0+)
+cakemail --profile developer campaigns list
+cakemail --profile marketer campaigns create
+
+# Batch mode - disable all interactive features (v1.5.0+)
+cakemail --batch campaigns create --name "Newsletter" --list-id 123 --sender-id 456
+
 # Authentication override
 cakemail --access-token abc123 campaigns list
 cakemail --email user@example.com --password pass123 campaigns list
@@ -200,6 +247,9 @@ Complete list of environment variables:
 | `CAKEMAIL_OUTPUT_FORMAT` | Default output format | `json` | `compact`, `table`, `json` |
 | `CAKEMAIL_API_BASE` | API base URL | `https://api.cakemail.dev` | `https://api.example.com` |
 | `CAKEMAIL_ACCOUNT_ID` | Default account ID | None | `12345` |
+| `CAKEMAIL_BATCH_MODE` | Force batch mode (v1.5.0+) | `false` | `true` |
+
+**Note**: Profile settings are managed via config commands, not environment variables. See [Profile System](../02-core-concepts/profile-system.md).
 
 ---
 
