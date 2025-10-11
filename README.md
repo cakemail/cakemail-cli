@@ -25,17 +25,51 @@ npm install -g @cakemail-org/cakemail-cli
 npx @cakemail-org/cakemail-cli --help
 ```
 
-## Configuration
+## Quick Start
 
-Set your Cakemail credentials using environment variables:
+No setup required! Just run any command and the CLI will guide you through authentication:
 
 ```bash
-# Option 1: Use access token
-export CAKEMAIL_ACCESS_TOKEN=your_access_token
+cakemail campaigns list
+```
 
-# Option 2: Use email/password
+The CLI will prompt for your email and password, then save credentials to `~/.cakemail/config.json`.
+
+### Profile System (NEW in v1.5.0)
+
+Choose a profile that matches your workflow:
+
+- **Developer**: Fast, scriptable, no interruptions (JSON output, no prompts, no confirmations)
+- **Marketer**: Guided, interactive, safe (Compact output, prompts, confirmations, tips)
+- **Balanced**: Best of both worlds (Table output, auto-detect prompts, confirmations) - **Default**
+
+```bash
+# Switch profiles
+cakemail config profile-set developer  # For scripts and automation
+cakemail config profile-set marketer   # For exploratory work
+cakemail config profile-set balanced   # For general use
+
+# Preview a profile before switching
+cakemail config preview developer
+
+# Override profile for one command
+cakemail --profile developer campaigns list
+
+# Disable all prompts for scripting
+cakemail --batch campaigns create --name "Test" --list-id 123 --sender-id 456
+```
+
+### Manual Configuration (Optional)
+
+You can also configure manually with environment variables or `.env` file:
+
+```bash
+# Option 1: Use email/password
 export CAKEMAIL_EMAIL=your@email.com
 export CAKEMAIL_PASSWORD=your_password
+
+# Option 2: Use access token
+export CAKEMAIL_ACCESS_TOKEN=your_access_token
 
 # Optional: Set default output format
 export CAKEMAIL_OUTPUT_FORMAT=compact  # json, table, or compact
@@ -66,9 +100,12 @@ cakemail [options] <command>
 ### Global Options
 
 - `-f, --format <format>` - Output format: `json`, `table`, or `compact` (default: `json`)
+- `--profile <type>` - Override profile for this command: `developer`, `marketer`, or `balanced`
+- `--batch` - Run in batch/scripting mode (disable all interactive prompts)
 - `--access-token <token>` - Override access token from environment
 - `--email <email>` - Override email from environment
 - `--password <password>` - Override password from environment
+- `--account <id>` - Override account ID for this command
 
 ### Output Formats
 
@@ -105,6 +142,33 @@ cakemail -f json campaigns list # Override to JSON
 ```
 
 ### Commands
+
+#### Profile Management (NEW in v1.5.0)
+
+```bash
+# Show current profile and settings
+cakemail config profile
+
+# Switch to a different profile
+cakemail config profile-set developer   # Fast, scriptable
+cakemail config profile-set marketer    # Guided, interactive
+cakemail config profile-set balanced    # Balanced (default)
+
+# Preview a profile without switching
+cakemail config preview developer
+cakemail config preview marketer
+
+# Customize individual settings
+cakemail config set output.format table
+cakemail config set behavior.confirm_destructive false
+cakemail config set display.date_format iso8601
+
+# Reset all settings to profile defaults
+cakemail config reset
+
+# Show complete configuration
+cakemail config show
+```
 
 #### Email API v2
 
@@ -197,13 +261,20 @@ cakemail campaigns list [options]
 # Get campaign details
 cakemail campaigns get <id>
 
-# Create a campaign
+# Create a campaign (interactive in marketer/balanced profiles)
 cakemail campaigns create -n "My Campaign" -l <list-id> [options]
-  -n, --name <name>         Campaign name (required)
-  -l, --list-id <id>        List ID (required)
-  -s, --sender-id <id>      Sender ID
+  -n, --name <name>         Campaign name (prompts if missing)
+  -l, --list-id <id>        List ID (auto-detects or shows selection)
+  -s, --sender-id <id>      Sender ID (auto-detects or shows selection)
   -t, --template-id <id>    Template ID
   --subject <subject>       Email subject
+
+# Interactive example (marketer profile)
+cakemail campaigns create
+# Prompts: Campaign name? Select list? Select sender?
+
+# Non-interactive example (developer profile or --batch)
+cakemail campaigns create --name "Newsletter" --list-id 123 --sender-id 456
 
 # Update a campaign
 cakemail campaigns update <id> [options]
@@ -261,10 +332,17 @@ cakemail lists list [options]
 # Get list details
 cakemail lists get <id>
 
-# Create a list
+# Create a list (interactive in marketer/balanced profiles)
 cakemail lists create -n "My List" [options]
-  -n, --name <name>       List name (required)
-  -l, --language <lang>   Language code (e.g., en, fr)
+  -n, --name <name>       List name (prompts if missing)
+  -l, --language <lang>   Language code (optional, prompts in interactive mode)
+
+# Interactive example
+cakemail lists create
+# Prompts: List name? Language code (optional)?
+
+# Non-interactive example
+cakemail lists create --name "Newsletter Subscribers" --language en
 
 # Delete list
 cakemail lists delete <id> --force

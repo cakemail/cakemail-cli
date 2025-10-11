@@ -5,6 +5,135 @@ All notable changes to the Cakemail CLI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2025-10-11
+
+### Added - Complete Profile System
+
+**Three User Profiles with Adaptive Behavior**
+- **Developer Profile**: JSON output, minimal colors, no prompts, no confirmations, ISO8601 dates, verbose errors, show API details
+- **Marketer Profile**: Compact output, rich colors, interactive prompts, confirmations, relative dates, friendly errors, helpful tips
+- **Balanced Profile** (Default): Table output, moderate colors, auto-detect prompts, confirmations, friendly dates, balanced errors
+
+**Profile Management Commands (6 commands)**
+- `config profile` - Show current profile and all settings
+- `config profile-set <type>` - Switch to different profile (developer|marketer|balanced)
+- `config preview <type>` - Preview profile settings without switching
+- `config set <key> <value>` - Customize individual settings
+- `config reset` - Reset all settings to profile defaults
+- `config show` - Show complete configuration including auth and defaults
+
+**Interactive Prompt System**
+- Smart environment detection (TTY, CI, batch mode)
+- Profile-aware prompts that respect user preferences
+- Interactive text, number, select, multi-select, confirm, and password prompts
+- Automatic prompt suppression in non-interactive environments
+- `promptText()`, `promptNumber()`, `promptSelect()`, `promptMultiSelect()`, `promptConfirm()`, `promptPassword()`
+
+**Smart Resource Selection with Interactive Prompts**
+- `campaigns create` - Interactive prompts for campaign name, list selection, and sender selection
+- `lists create` - Interactive prompt for list name and optional language
+- Auto-detects single resources (lists, senders) or shows interactive selection menu
+- Displays resource details during selection (e.g., "Newsletter List (1,234 contacts)")
+
+**Profile-Aware Confirmations**
+- Developer profile: Skip all confirmations (trusts the developer)
+- Marketer profile: Always confirm destructive operations (safety first)
+- Balanced profile: Confirm in interactive mode, skip in scripts
+- Automatic confirmation suppression in CI/batch environments
+
+**Global CLI Flags**
+- `--profile <type>` - Override profile for single command without switching
+- `--batch` - Explicit scripting mode (disable all interactive prompts)
+- Works with all commands: `cakemail --profile developer campaigns list`
+
+**Profile-Aware Output Features**
+- Color schemes: none (no colors), minimal (red/green only), moderate, rich (full colors)
+- Date formats: iso8601 (machine-readable), friendly (human-readable), relative (time ago)
+- Error messages: technical (developer) vs friendly (marketer) based on profile
+- Progress indicators: shown/hidden based on profile settings
+- Tips and hints: enabled for marketer, disabled for developer
+
+**Configuration Storage**
+- Profile settings stored in `~/.cakemail/config.json`
+- Automatic migration from `.env` to config file
+- Profile selection integrated into first-time auth flow
+- Backward compatible with existing `.env` configurations
+
+### Changed
+- `OutputFormatter` now accepts profile config getter for adaptive behavior
+- `confirmDelete()` and related functions now accept optional `profileConfig` parameter
+- Interactive prompts automatically skip in non-TTY and CI environments
+- `campaigns create` and `lists create` now have optional `--name` parameter (prompts if missing)
+- All confirmation functions now respect profile settings
+- Error display adapts to profile (technical vs friendly)
+- Spinners adapt to profile (shown/hidden based on `show_progress` setting)
+
+### Technical Improvements
+- Created `src/types/profile.ts` - Complete profile type system with 3 profiles
+- Created `src/utils/config-file.ts` - Profile config storage and management
+- Created `src/utils/interactive.ts` - Interactive prompt system with environment detection
+- Enhanced `src/utils/confirm.ts` - Profile-aware confirmations
+- Enhanced `src/utils/errors.ts` - Profile-aware error messages
+- Enhanced `src/commands/campaigns.ts` - Interactive create with smart resource selection
+- Enhanced `src/commands/lists.ts` - Interactive create
+- Added `getProfile()` public method to `OutputFormatter`
+- Profile config uses lazy evaluation pattern for runtime overrides
+
+### Configuration Priority
+```
+CLI flags (--profile, --batch) > Env vars > Custom overrides > Profile defaults > Hard-coded defaults
+```
+
+### Example Usage
+
+**Switch Profiles:**
+```bash
+cakemail config profile-set developer  # Fast, scriptable, no interruptions
+cakemail config profile-set marketer   # Guided, interactive, safe
+cakemail config profile-set balanced   # Best of both worlds (default)
+```
+
+**Preview Before Switching:**
+```bash
+cakemail config preview developer  # See what developer mode looks like
+```
+
+**Override Profile Once:**
+```bash
+cakemail --profile developer campaigns list  # Use developer mode just once
+cakemail --batch campaigns create ...        # Disable prompts for this command
+```
+
+**Interactive Campaign Creation (Marketer Profile):**
+```bash
+$ cakemail campaigns create
+Campaign name: Weekly Newsletter
+? Select a list: › Newsletter Subscribers (1,234 contacts)
+? Select a sender: › Marketing Team <marketing@company.com>
+✓ Campaign created: 789
+```
+
+**Scripted Campaign Creation (Developer Profile):**
+```bash
+$ cakemail campaigns create --name "Weekly Newsletter" --list-id 123 --sender-id 456
+{"id":789,"name":"Weekly Newsletter","status":"draft"}
+```
+
+### Documentation
+- Reorganized all documentation into `/docs` structure
+- Created comprehensive user manual with 11 sections
+- Added developer documentation (ARCHITECTURE, AUTH, CONTRIBUTING)
+- Added planning documents (BACKLOG, PROFILE_SYSTEM_TASKS)
+- Archived old documentation for reference
+
+### Notes
+- **No breaking changes** - All existing commands remain compatible
+- Profile system is opt-in - balanced profile is the default
+- Developers can use `--profile developer` for fast, non-interactive behavior
+- Marketers get guided experience with safety confirmations
+- Scripts automatically detect non-TTY and skip prompts
+- Full backward compatibility with `.env` based configuration
+
 ## [1.4.0] - 2025-10-11
 
 ### Added - Seamless Authentication, Multi-Tenant Support & Enhanced Output
