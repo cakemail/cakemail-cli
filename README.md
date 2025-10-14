@@ -828,6 +828,63 @@ npm start -- campaigns list
 node dist/cli.js campaigns list
 ```
 
+### Testing
+
+The CLI has a comprehensive test suite:
+
+```bash
+# Run all tests
+npm test
+
+# Run integration tests (requires real API credentials)
+npm run test:integration
+
+# Run PTY tests (requires Node 18-20)
+npm run test:pty
+
+# Generate coverage report
+npm run test:coverage
+
+# Watch mode for development
+npm run test:watch
+```
+
+**Test Types:**
+
+1. **Integration Tests** - Test against real Cakemail API
+   - Requires credentials in `.env` file
+   - Tests real API calls and responses
+   - Currently: 5 passing tests
+
+2. **PTY Tests** - Simulate real terminal user experience
+   - Tests colors, spinners, interactive prompts
+   - Tests all output formats (JSON, table, compact)
+   - Requires Node 18.x or 20.x (node-pty compatibility)
+   - Uses mock HTTP server for isolated testing
+
+**Setting up Integration Tests:**
+
+Create a `.env` file with test credentials:
+
+```bash
+CAKEMAIL_EMAIL=your_test_account@example.com
+CAKEMAIL_PASSWORD=your_test_password
+```
+
+**PTY Tests (Note):**
+
+PTY tests require Node 18 or 20 due to node-pty compilation limitations with Node 24+. If you're on Node 24:
+
+```bash
+# Switch to Node 20 for PTY tests
+nvm install 20
+nvm use 20
+npm install
+npm run test:pty
+```
+
+See `tests/PTY_TESTING_GUIDE.md` for complete testing documentation.
+
 ## License
 
 MIT

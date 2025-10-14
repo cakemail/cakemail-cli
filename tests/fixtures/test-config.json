@@ -1,0 +1,13 @@
+{
+  "testCredentials": {
+    "accessToken": "test-access-token",
+    "email": "test@example.com",
+    "password": "test-password"
+  },
+  "testAccount": {
+    "id": 1,
+    "email": "test@example.com",
+    "name": "Test Account"
+  },
+  "apiBase": "https://api.cakemail.dev"
+}

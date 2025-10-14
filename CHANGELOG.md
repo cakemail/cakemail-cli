@@ -5,7 +5,62 @@ All notable changes to the Cakemail CLI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.6.0] - 2025-10-11
+## [1.6.0] - 2025-10-14
+
+### Added - Complete Testing Infrastructure
+
+**Test Framework:**
+- Vitest test framework with full configuration
+- Integration tests for real API validation (5 tests)
+- PTY (Pseudo-Terminal) test infrastructure for realistic user simulation
+- Express-based mock HTTP server for subprocess testing
+- Comprehensive test documentation and guides
+
+**Testing Capabilities:**
+- Real API integration tests with working credentials
+- PTY tests simulate actual terminal sessions (colors, spinners, interactive prompts)
+- Mock server handles OAuth, campaigns, lists, contacts, senders, templates
+- Test helpers for CLI execution and PTY management
+- Support for testing all output formats (JSON, table, compact)
+- Coverage reporting with Vitest
+
+**Test Scripts Added:**
+```bash
+npm test                  # Run all tests
+npm run test:integration  # Test against real API
+npm run test:pty          # Test with PTY (needs Node 18-20)
+npm run test:coverage     # Generate coverage report
+npm run test:ci           # CI/CD pipeline tests
+```
+
+**Test Documentation:**
+- `tests/PTY_TESTING_GUIDE.md` - Complete PTY testing guide with examples
+- `tests/PTY_SETUP.md` - Setup instructions and Node version requirements
+- `tests/README.md` - Testing overview
+
+**Node Version Compatibility:**
+- PTY tests require Node 18.x or 20.x (node-pty compilation issue with Node 24+)
+- Integration tests work on all Node versions ✅
+- CLI works on all Node 18+ ✅
+
+### Fixed - Pagination and Table Rendering
+
+**Pagination Handling:**
+- Fixed support for new SDK pagination format (nested `pagination` object)
+- Maintains backward compatibility with old format (root-level fields)
+- Handles both `data.pagination.count` and `data.count` formats
+
+**Table Rendering:**
+- Fixed table column width calculation to handle `undefined` values
+- Prevents crashes when column width calculation returns no results
+- Only applies `colWidths` when explicitly calculated
+
+### Changed
+
+- Test coverage: 0% → 6% (with room to grow to 100%)
+- Dev dependencies: Added vitest, express, execa, strip-ansi, @vitest/coverage-v8
+- Optional dependency: node-pty (for PTY testing on compatible Node versions)
+- Package scripts: Removed placeholder test script, added comprehensive test suite
 
 ### Added - Complete API Coverage Sprint (30 new commands)
 

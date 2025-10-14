@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(git config:*)",
-      "WebFetch(domain:cli.github.com)"
+      "WebFetch(domain:cli.github.com)",
+      "Bash(xargs basename:*)"
     ],
     "deny": [],
     "ask": []

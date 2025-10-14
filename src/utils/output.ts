@@ -138,11 +138,15 @@ export class OutputFormatter {
 
     if (data.data && Array.isArray(data.data)) {
       items = data.data;
+      // Handle both old format (count/page/per_page at root) and new format (nested in pagination object)
+      const paginationSource = data.pagination || data;
       pagination = {
-        count: data.count,
-        page: data.page,
-        perPage: data.per_page,
-        totalPages: data.count && data.per_page ? Math.ceil(data.count / data.per_page) : undefined
+        count: paginationSource.count || data.count,
+        page: paginationSource.page || data.page,
+        perPage: paginationSource.per_page || data.per_page,
+        totalPages: (paginationSource.count || data.count) && (paginationSource.per_page || data.per_page)
+          ? Math.ceil((paginationSource.count || data.count) / (paginationSource.per_page || data.per_page))
+          : undefined
       };
     }
 
@@ -160,14 +164,21 @@ export class OutputFormatter {
     // Determine which fields to show
     const keys = fields || this.getDisplayFields(items[0]);
 
-    const table = new Table({
+    const tableOptions: any = {
       head: keys.map(k => chalk.cyan.bold(k)),
       style: {
         head: [],
         border: ['gray']
-      },
-      colWidths: this.calculateColumnWidths(items, keys)
-    });
+      }
+    };
+
+    // Only add colWidths if we have specific widths to set
+    const colWidths = this.calculateColumnWidths(items, keys);
+    if (colWidths) {
+      tableOptions.colWidths = colWidths;
+    }
+
+    const table = new Table(tableOptions);
 
     items.forEach((item: any) => {
       table.push(keys.map(k => this.formatTableValue(item, k)));
@@ -264,11 +275,15 @@ export class OutputFormatter {
 
     if (data.data && Array.isArray(data.data)) {
       items = data.data;
+      // Handle both old format (count/page/per_page at root) and new format (nested in pagination object)
+      const paginationSource = data.pagination || data;
       pagination = {
-        count: data.count,
-        page: data.page,
-        perPage: data.per_page,
-        totalPages: data.count && data.per_page ? Math.ceil(data.count / data.per_page) : undefined
+        count: paginationSource.count || data.count,
+        page: paginationSource.page || data.page,
+        perPage: paginationSource.per_page || data.per_page,
+        totalPages: (paginationSource.count || data.count) && (paginationSource.per_page || data.per_page)
+          ? Math.ceil((paginationSource.count || data.count) / (paginationSource.per_page || data.per_page))
+          : undefined
       };
     }
 

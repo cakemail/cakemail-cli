@@ -1,6 +1,6 @@
 # Cakemail CLI - Master Backlog
 
-**Last Updated:** 2025-10-11
+**Last Updated:** 2025-10-14
 **Current Version:** 1.6.0
 **Project Status:** Active Development
 
@@ -16,6 +16,34 @@ This document tracks all planned work for the Cakemail CLI across multiple dimen
 ---
 
 ## ✅ Recently Completed
+
+### v1.6.0 - Testing Infrastructure + Bug Fixes ✅ SHIPPED (2025-10-14)
+
+**Status:** ✅ COMPLETED AND SHIPPED
+**Test Coverage:** 0% → 6% (with infrastructure for 100%)
+
+#### Testing Infrastructure Added
+- [x] **Vitest Test Framework** - Modern test runner with coverage reporting
+- [x] **Integration Tests** - 5 passing tests against real Cakemail API
+- [x] **PTY Test Infrastructure** - Simulate real terminal sessions with colors/spinners
+- [x] **Mock HTTP Server** - Express-based server for isolated subprocess testing
+- [x] **Test Documentation** - Complete guides (PTY_TESTING_GUIDE.md, PTY_SETUP.md)
+- [x] **Test Scripts** - npm test, test:integration, test:pty, test:coverage, test:ci
+
+#### Bug Fixes
+- [x] **Pagination** - Support new SDK pagination format (nested pagination object)
+- [x] **Table Rendering** - Fix column width calculation to handle undefined values
+
+#### Key Features
+- **Real API Testing** - Integration tests validate against live Cakemail API
+- **Terminal Simulation** - PTY tests verify exact user experience (colors, spinners, prompts)
+- **Mock Server** - Express server enables realistic subprocess testing without external dependencies
+- **CI/CD Ready** - Full test suite for automated testing pipelines
+- **Node Version Aware** - Clear documentation for Node 18-20 requirement for PTY tests
+
+**Impact:** Established comprehensive testing infrastructure for ongoing quality assurance
+
+---
 
 ### v1.6.0 - API Coverage Expansion ✅ SHIPPED (2025-10-11)
 
@@ -143,15 +171,18 @@ This document tracks all planned work for the Cakemail CLI across multiple dimen
 ## 🎯 Current Focus
 
 ### Active Work
-- **Status:** Just completed API Coverage Expansion (v1.6.0) ✅
+- **Status:** Just completed Testing Infrastructure + Bug Fixes (v1.6.0) ✅
 - **Next Decision:** Choose next feature from backlog
 
 ### What We Just Shipped (v1.6.0)
-- ✅ 30 new commands across 6 feature areas
+- ✅ Comprehensive testing infrastructure (Vitest, integration tests, PTY tests)
+- ✅ Bug fixes for pagination and table rendering
+- ✅ 30 new commands across 6 feature areas (from earlier in v1.6.0)
 - ✅ Tags and Interests management
 - ✅ Transactional templates with full lifecycle
 - ✅ Activity logs and campaign enhancements
 - ✅ 59% API coverage achieved (136/232 commands)
+- ✅ 6% test coverage established with room to grow to 100%
 
 ### Quick Wins Available (< 3 days each)
 - Natural date parsing (2-3 days)
