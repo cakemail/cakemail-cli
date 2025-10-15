@@ -153,6 +153,9 @@ export class OutputFormatter {
     // Ensure we have an array
     items = Array.isArray(items) ? items : [items];
 
+    // Filter out undefined/null items
+    items = items.filter((item: any) => item !== null && item !== undefined);
+
     if (items.length === 0) {
       console.log(chalk.gray('No results'));
       return;
