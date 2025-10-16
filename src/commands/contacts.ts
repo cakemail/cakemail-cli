@@ -7,6 +7,7 @@ import { pollUntilComplete, BatchProgress } from '../utils/progress.js';
 import { displayError, validate } from '../utils/errors.js';
 import { confirmDelete } from '../utils/confirm.js';
 import { autoDetectList } from '../utils/defaults.js';
+import { applyListDefaults } from '../utils/list-defaults.js';
 
 export function createContactsCommand(client: CakemailClient, formatter: OutputFormatter): Command {
   const contacts = new Command('contacts')
@@ -36,15 +37,17 @@ export function createContactsCommand(client: CakemailClient, formatter: OutputF
         process.exit(1);
       }
 
+      const profileConfig = formatter.getProfile();
       const spinner = ora('Fetching contacts...').start();
       try {
+        // Apply profile-based defaults for pagination and sorting
         const params: any = {
           list_id: detectedListId,
+          ...applyListDefaults(options, profileConfig)
         };
-        if (options.limit) params.per_page = parseInt(options.limit);
-        if (options.page) params.page = parseInt(options.page);
+
+        // Add contacts-specific filters
         if (options.query) params.query = options.query;
-        if (options.sort) params.sort = options.sort;
         if (options.filter) params.filter = options.filter;
 
         const data = await client.sdk.contacts.list(params);
@@ -416,13 +419,13 @@ export function createContactsCommand(client: CakemailClient, formatter: OutputF
         process.exit(1);
       }
 
+      const profileConfig = formatter.getProfile();
       const spinner = ora('Fetching exports...').start();
       try {
         const params: any = {
-          listId: detectedListId
+          listId: detectedListId,
+          ...applyListDefaults(options, profileConfig)
         };
-        if (options.limit) params.per_page = parseInt(options.limit);
-        if (options.page) params.page = parseInt(options.page);
 
         const data = await client.sdk.contactService.listContactsExports(params);
         spinner.stop();

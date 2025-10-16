@@ -5,6 +5,7 @@ import ora from 'ora';
 import { displayError, validate } from '../utils/errors.js';
 import { confirmDelete, confirmDangerousDelete } from '../utils/confirm.js';
 import { promptText, createSpinner } from '../utils/interactive.js';
+import { applyListDefaults } from '../utils/list-defaults.js';
 
 export function createListsCommand(client: CakemailClient, formatter: OutputFormatter): Command {
   const lists = new Command('lists')
@@ -19,12 +20,13 @@ export function createListsCommand(client: CakemailClient, formatter: OutputForm
     .option('--sort <sort>', 'Sort by field: +name, -created_on')
     .option('--filter <filter>', 'Filter (e.g., "status==active;name==Newsletter")')
     .action(async (options) => {
+      const profileConfig = formatter.getProfile();
       const spinner = ora('Fetching lists...').start();
       try {
-        const params: any = {};
-        if (options.limit) params.per_page = parseInt(options.limit);
-        if (options.page) params.page = parseInt(options.page);
-        if (options.sort) params.sort = options.sort;
+        // Apply profile-based defaults for pagination and sorting
+        const params: any = applyListDefaults(options, profileConfig);
+
+        // Add lists-specific filters
         if (options.filter) params.filter = options.filter;
 
         const data = await client.sdk.lists.list(params);

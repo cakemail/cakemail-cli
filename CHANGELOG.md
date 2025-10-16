@@ -5,6 +5,247 @@ All notable changes to the Cakemail CLI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2025-10-16
+
+### Added - OAuth Authentication & Profile Enhancements
+
+**OAuth Token-Based Authentication**
+- Migrated from password-based to OAuth token authentication
+- Access tokens and refresh tokens now stored in config file
+- Token expiration tracking with `expires_in` field
+- Automatic token refresh support (foundation for future implementation)
+- Enhanced authentication flow with better error handling
+- Account selection prompt when multiple accounts are available
+- Improved first-time authentication experience
+
+**Logout Command**
+- `logout` - Log out and clear all authentication tokens
+- Interactive confirmation prompt showing current user and what will be deleted
+- `--force` flag to skip confirmation for scripting
+- Gracefully handles case when user is already logged out
+- Deletes entire config file including profile settings
+
+**Profile-Based List Defaults**
+- Marketer profile now defaults to 25 items per page (instead of API default 50)
+- Marketer profile now sorts lists by newest first (`-created_on`)
+- Applied to all list commands: campaigns, contacts, lists, senders, etc.
+- Created reusable `applyListDefaults()` helper for consistent behavior
+- Maintains backward compatibility with explicit `--limit` and `--sort` flags
+
+**Enhanced Help System**
+- `cakemail --help` now works without requiring authentication
+- `cakemail --version` works without authentication
+- Subcommand help (e.g., `cakemail config --help`) works without authentication
+- Bare `cakemail` command still triggers authentication as intended
+- Early return optimization for help/version commands
+
+**Improved Configuration Display**
+- `config profile` now shows all available quick actions including logout
+- Added "View all" quick action for `config show` command
+- Better organized help text with clear command examples
+- Shows current profile and all active settings
+
+### Fixed
+
+**Date Display Issues**
+- Fixed Unix timestamp conversion (seconds to milliseconds)
+- Timestamps no longer show as 1970-01-01 dates
+- Proper date formatting in all output modes (JSON, table, compact)
+- Fixed in authentication tokens, campaign dates, and contact timestamps
+
+**Profile Persistence**
+- Fixed profile setting not being saved during authentication
+- Profile selection now properly persists to config file
+- Enhanced OAuth flow to maintain profile choice
+
+**SDK Parameter Mapping**
+- Fixed parameter naming inconsistencies across SDK services
+- Senders command now correctly maps `per_page` to `perPage`
+- Ensures all list commands work with profile defaults
+
+### Changed
+
+**Authentication Flow**
+- Email/password flow now returns OAuth tokens instead of storing password
+- Config file now stores `access_token`, `refresh_token`, and `expires_in`
+- Password is never stored in config file (security improvement)
+- Authentication method tracked in config (`password` or `token`)
+- Profile selection integrated into initial authentication flow
+
+**Configuration Structure**
+- Added `auth.access_token` field (replaces legacy `token` field)
+- Added `auth.refresh_token` field for token refresh
+- Added `auth.expires_in` field for expiration tracking
+- Added `auth.method` field to track authentication method
+- Maintains backward compatibility with legacy `token` field
+
+**List Command Behavior**
+- All list commands now respect profile-based defaults
+- Marketer profile provides more curated experience with smaller page sizes
+- Developer profile still uses API defaults (50 items, default sort)
+- Explicit flags (`--limit`, `--sort`) always override profile defaults
+
+### Technical Improvements
+
+**New Files**
+- `src/utils/list-defaults.ts` - Reusable helper for applying profile-based defaults to list commands
+  - `applyListDefaults()` function with proper parameter mapping
+  - Handles `per_page`, `page`, and `sort` parameters
+  - Profile-aware with fallback to API defaults
+
+**Enhanced Files**
+- `src/utils/auth.ts` - Complete OAuth authentication flow implementation
+  - Account selection when multiple accounts available
+  - Token extraction from OAuth response
+  - Profile selection persistence
+  - Better error handling and user feedback
+
+- `src/utils/config-file.ts` - Enhanced config file management
+  - `deleteConfigFile()` function for logout
+  - Support for OAuth token fields
+  - Maintains backward compatibility with legacy fields
+
+- `src/commands/config.ts` - Logout command and improved help
+  - `logout` command with interactive confirmation
+  - Enhanced profile display with all quick actions
+  - Better command organization
+
+- `src/cli.ts` - Improved help and authentication logic
+  - Early return for help/version commands
+  - Conditional client creation for help scenarios
+  - Better authentication skip logic
+
+- `src/utils/config.ts` - OAuth token support
+  - Load access_token and refresh_token from config
+  - Support for token expiration tracking
+  - Maintains backward compatibility
+
+- `src/utils/output.ts` - Date formatting fixes
+  - Proper Unix timestamp conversion (seconds → milliseconds)
+  - Enhanced date display across all output modes
+
+- `src/client.ts` - OAuth token authentication
+  - Uses access_token from config instead of password
+  - Maintains backward compatibility with old authentication
+
+**Updated Commands**
+- `src/commands/campaigns.ts` - Profile-based list defaults
+- `src/commands/contacts.ts` - Profile-based list defaults
+- `src/commands/lists.ts` - Profile-based list defaults
+- `src/commands/senders.ts` - Profile-based list defaults with parameter mapping
+
+### Security Improvements
+- Password no longer stored in config file
+- OAuth tokens used for API authentication
+- Refresh token support for long-lived sessions
+- Logout command completely removes all credentials
+
+### Example Usage
+
+**OAuth Authentication:**
+```bash
+# First-time authentication
+$ cakemail campaigns list
+⚠ Not authenticated
+Please enter your Cakemail credentials:
+
+Email: user@example.com
+Password: ********
+
+🔐 Authenticating...
+✓ Authentication successful!
+
+# Multiple accounts - selection prompt
+? Select an account:
+  › Cakemail (ID: 123456) ⭐
+    Sub-Account A (ID: 789012)
+    Sub-Account B (ID: 345678)
+
+# Profile selection
+? Select your profile:
+  › 📊 Marketer - Interactive, user-friendly
+    💻 Developer - Fast, scriptable
+    ⚖️  Balanced - Best of both
+```
+
+**Logout:**
+```bash
+# Interactive logout
+$ cakemail logout
+
+🚪 Logout
+
+Currently logged in as: user@example.com
+
+This will remove:
+  • Authentication tokens
+  • Profile settings
+  • All saved configuration
+
+? Are you sure you want to log out? (y/N) y
+
+✓ Logged out successfully
+
+Run any command to log in again.
+
+# Force logout (skip confirmation)
+$ cakemail logout --force
+```
+
+**Profile-Based List Defaults (Marketer):**
+```bash
+# Marketer profile - gets 25 items, sorted by newest first
+$ cakemail campaigns list
+Showing 1-25 of 150 • Page 1 of 6
+[Shows 25 newest campaigns]
+
+# Override with explicit flags
+$ cakemail campaigns list --limit 50 --sort "+name"
+[Shows 50 campaigns sorted by name]
+```
+
+**Enhanced Config Profile Display:**
+```bash
+$ cakemail config profile
+
+📋 Current Profile
+
+Profile: marketer
+(📊 Marketer/Business user)
+
+[... settings display ...]
+
+──────────────────────────────────────────────────
+
+Quick actions:
+  Change profile: cakemail config profile-set <type>
+  Customize:      cakemail config set <key> <value>
+  Reset:          cakemail config reset
+  View all:       cakemail config show
+  Logout:         cakemail logout
+```
+
+### Upgrade Notes
+
+**For Existing Users:**
+- On first command after upgrade, you'll be prompted to re-authenticate
+- This is a one-time process to migrate from password to OAuth tokens
+- Your profile settings will be preserved
+- Previous .env configurations are still supported but will migrate to OAuth
+
+**For New Users:**
+- Simply run any command to start the authentication flow
+- OAuth tokens are automatically managed
+- No manual token management required
+
+### Notes
+- **No breaking changes** - All existing commands remain compatible
+- OAuth migration is automatic and seamless
+- Profile-based defaults improve UX without requiring configuration
+- Logout provides clean way to switch accounts or remove credentials
+- Help system now more accessible without authentication requirement
+- All date display issues from previous versions are resolved
+
 ## [1.6.0] - 2025-10-14
 
 ### Added - Complete Testing Infrastructure

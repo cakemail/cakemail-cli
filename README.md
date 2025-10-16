@@ -33,7 +33,9 @@ No setup required! Just run any command and the CLI will guide you through authe
 cakemail campaigns list
 ```
 
-The CLI will prompt for your email and password, then save credentials to `~/.cakemail/config.json`.
+The CLI will prompt for your email and password, then save OAuth tokens to `~/.cakemail/config.json`.
+
+**NEW in v1.7.0**: The CLI now uses OAuth token-based authentication. Your password is never stored - only secure access and refresh tokens are saved.
 
 ### Profile System (NEW in v1.5.0)
 
@@ -143,7 +145,7 @@ cakemail -f json campaigns list # Override to JSON
 
 ### Commands
 
-#### Profile Management (NEW in v1.5.0)
+#### Profile Management (v1.5.0+) & Logout (NEW in v1.7.0)
 
 ```bash
 # Show current profile and settings
@@ -168,6 +170,10 @@ cakemail config reset
 
 # Show complete configuration
 cakemail config show
+
+# Logout and clear all credentials (NEW in v1.7.0)
+cakemail logout              # Interactive confirmation
+cakemail logout --force      # Skip confirmation
 ```
 
 #### Email API v2

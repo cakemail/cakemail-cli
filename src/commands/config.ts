@@ -6,13 +6,15 @@
 
 import { Command } from 'commander';
 import chalk from 'chalk';
+import inquirer from 'inquirer';
 import {
   getCurrentProfile,
   setCurrentProfile,
   getProfileConfig,
   setProfileConfigValue,
   resetProfileConfig,
-  loadConfigFile
+  loadConfigFile,
+  deleteConfigFile
 } from '../utils/config-file.js';
 import { ProfileType, PROFILE_DESCRIPTIONS } from '../types/profile.js';
 
@@ -56,6 +58,13 @@ export function registerConfigCommands(program: Command): void {
     .command('preview <type>')
     .description('Preview settings for a profile without switching (developer|marketer|balanced)')
     .action(previewProfile);
+
+  // Logout command
+  program
+    .command('logout')
+    .description('Log out and clear authentication tokens')
+    .option('-f, --force', 'Skip confirmation prompt')
+    .action(logout);
 }
 
 /**
@@ -89,9 +98,12 @@ function showProfile(): void {
   console.log(`  Verbose errors:      ${chalk.white(config.display.verbose_errors ? 'yes' : 'no')}`);
 
   console.log(chalk.gray('\n' + '─'.repeat(50)));
-  console.log(chalk.gray(`\nChange profile: ${chalk.cyan('cakemail config profile-set <type>')}`));
-  console.log(chalk.gray(`Customize:      ${chalk.cyan('cakemail config set <key> <value>')}`));
-  console.log(chalk.gray(`Reset:          ${chalk.cyan('cakemail config reset')}\n`));
+  console.log(chalk.gray('\nQuick actions:'));
+  console.log(chalk.gray(`  Change profile: ${chalk.cyan('cakemail config profile-set <type>')}`));
+  console.log(chalk.gray(`  Customize:      ${chalk.cyan('cakemail config set <key> <value>')}`));
+  console.log(chalk.gray(`  Reset:          ${chalk.cyan('cakemail config reset')}`));
+  console.log(chalk.gray(`  View all:       ${chalk.cyan('cakemail config show')}`));
+  console.log(chalk.gray(`  Logout:         ${chalk.cyan('cakemail logout')}\n`));
 }
 
 /**
@@ -283,5 +295,61 @@ function previewProfile(type: string): void {
     console.log(chalk.gray(`\nCurrent profile: ${chalk.white(currentProfile)}`));
     console.log(chalk.gray(`Switch to this profile: ${chalk.cyan(`cakemail config profile-set ${profile}`)}`));
     console.log(chalk.gray(`Try it once: ${chalk.cyan(`cakemail --profile ${profile} campaigns list`)}\n`));
+  }
+}
+
+/**
+ * Logout and clear authentication
+ */
+async function logout(options: any): Promise<void> {
+  const configFile = loadConfigFile();
+
+  if (!configFile) {
+    console.log(chalk.yellow('\n⚠ Not logged in\n'));
+    return;
+  }
+
+  // Show what will be deleted
+  console.log(chalk.cyan('\n🚪 Logout\n'));
+
+  if (configFile.auth?.email) {
+    console.log(chalk.gray(`Currently logged in as: ${chalk.white(configFile.auth.email)}`));
+  }
+
+  console.log(chalk.gray('\nThis will remove:'));
+  console.log(chalk.gray('  • Authentication tokens'));
+  console.log(chalk.gray('  • Profile settings'));
+  console.log(chalk.gray('  • All saved configuration\n'));
+
+  // Confirm unless --force is used
+  if (!options.force) {
+    const answer = await inquirer.prompt([
+      {
+        type: 'confirm',
+        name: 'confirmed',
+        message: 'Are you sure you want to log out?',
+        default: false
+      }
+    ]);
+
+    if (!answer.confirmed) {
+      console.log(chalk.gray('\nLogout cancelled\n'));
+      return;
+    }
+  }
+
+  // Delete the config file
+  try {
+    const deleted = deleteConfigFile();
+
+    if (deleted) {
+      console.log(chalk.green('\n✓ Logged out successfully\n'));
+      console.log(chalk.gray('Run any command to log in again.\n'));
+    } else {
+      console.log(chalk.yellow('\n⚠ No configuration file found\n'));
+    }
+  } catch (error: any) {
+    console.error(chalk.red(`\n✗ Failed to logout: ${error.message}\n`));
+    process.exit(1);
   }
 }

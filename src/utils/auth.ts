@@ -84,8 +84,15 @@ export async function promptForCredentials(): Promise<Credentials> {
 
 /**
  * Tests credentials by attempting to authenticate with the API
+ * Returns token information if successful
  */
-export async function testCredentials(email: string, password: string): Promise<boolean> {
+export async function testCredentials(email: string, password: string): Promise<{
+  valid: boolean;
+  accessToken?: string;
+  refreshToken?: string;
+  expiresIn?: number;
+  accounts?: number[];
+}> {
   try {
     const sdk = new SDK({
       email,
@@ -93,11 +100,33 @@ export async function testCredentials(email: string, password: string): Promise<
       baseURL: process.env.CAKEMAIL_API_BASE || 'https://api.cakemail.dev'
     });
 
-    // Test credentials by fetching account info
-    await sdk.accountService.getSelfAccount();
-    return true;
+    // Get tokens using the TokenService
+    const tokenResponse = await sdk.tokenService.createToken({
+      formData: {
+        grant_type: 'password',
+        username: email,
+        password: password
+      }
+    });
+
+    // Handle potential MFA challenge
+    if ('challenge' in tokenResponse) {
+      // MFA is enabled - for now we'll return false
+      // TODO: Implement MFA flow
+      console.log(chalk.yellow('⚠ Multi-factor authentication is enabled on this account'));
+      console.log(chalk.gray('MFA support is coming soon. Please disable MFA temporarily.'));
+      return { valid: false };
+    }
+
+    return {
+      valid: true,
+      accessToken: tokenResponse.access_token,
+      refreshToken: tokenResponse.refresh_token,
+      expiresIn: tokenResponse.expires_in,
+      accounts: tokenResponse.accounts
+    };
   } catch (error: any) {
-    return false;
+    return { valid: false };
   }
 }
 
@@ -148,9 +177,9 @@ export async function authenticateInteractively(): Promise<Credentials> {
 
   console.log(chalk.gray('\nValidating credentials...'));
 
-  const isValid = await testCredentials(credentials.email, credentials.password);
+  const authResult = await testCredentials(credentials.email, credentials.password);
 
-  if (!isValid) {
+  if (!authResult.valid) {
     console.log(chalk.red('✗ Invalid credentials. Please try again.\n'));
     // Retry
     return authenticateInteractively();
@@ -210,17 +239,26 @@ export async function authenticateInteractively(): Promise<Credentials> {
 
   // Save to config file (preferred) or fallback to .env
   if (isFirstTimeSetup || configFileExists()) {
-    // Save to config file
-    updateConfigFile({
+    // Save to config file with tokens
+    const configUpdate: any = {
       version: '1.0',
-      profile: selectedProfile || 'balanced',
       auth: {
-        method: 'password',
+        method: 'token',
+        access_token: authResult.accessToken,
+        refresh_token: authResult.refreshToken,
+        expires_in: authResult.expiresIn,
         email: credentials.email,
         base_url: process.env.CAKEMAIL_API_BASE || 'https://api.cakemail.dev'
       },
       defaults: accountId ? { account_id: accountId } : undefined
-    });
+    };
+
+    // Only set profile during first-time setup to avoid overwriting user's profile choice
+    if (isFirstTimeSetup) {
+      configUpdate.profile = selectedProfile || 'balanced';
+    }
+
+    updateConfigFile(configUpdate);
     console.log(chalk.green('✓ Configuration saved to ~/.cakemail/config.json'));
   } else {
     // Fallback to .env for backward compatibility

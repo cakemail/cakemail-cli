@@ -514,7 +514,16 @@ export class OutputFormatter {
     if (!dateString) return this.applyColor('—', chalk.gray);
 
     try {
-      const date = new Date(dateString);
+      let date: Date;
+
+      // Handle Unix timestamps (seconds since epoch)
+      // If it's a number and looks like a Unix timestamp (10 digits), convert to milliseconds
+      if (typeof dateString === 'number' && dateString > 1000000000 && dateString < 10000000000) {
+        date = new Date(dateString * 1000);
+      } else {
+        date = new Date(dateString);
+      }
+
       if (isNaN(date.getTime())) return String(dateString);
 
       const dateFormat = this.getProfileConfig()?.display.date_format || 'relative';

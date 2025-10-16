@@ -22,7 +22,10 @@ export interface ConfigFile {
   auth?: {
     method?: 'password' | 'token';
     email?: string;
-    token?: string; // Encrypted token
+    token?: string; // Legacy: Encrypted token (for backward compatibility)
+    access_token?: string; // OAuth access token
+    refresh_token?: string; // OAuth refresh token
+    expires_in?: number; // Token expiration time in seconds
     base_url?: string;
   };
   profiles?: {
@@ -303,4 +306,20 @@ export function setDefault(key: 'list_id' | 'sender_id' | 'account_id', value: n
   }
 
   saveConfigFile(config);
+}
+
+/**
+ * Delete the configuration file (logout)
+ */
+export function deleteConfigFile(): boolean {
+  if (!configFileExists()) {
+    return false;
+  }
+
+  try {
+    fs.unlinkSync(CONFIG_FILE);
+    return true;
+  } catch (error) {
+    throw new Error(`Failed to delete config file: ${error}`);
+  }
 }

@@ -21,6 +21,7 @@ import { createInterestsCommand } from './commands/interests.js';
 import { createLogsCommand } from './commands/logs.js';
 import { createTransactionalTemplatesCommand } from './commands/transactional-templates.js';
 import { registerConfigCommands } from './commands/config.js';
+import { getProfileConfig } from './utils/config-file.js';
 import chalk from 'chalk';
 
 async function main() {
@@ -29,7 +30,7 @@ async function main() {
   program
     .name('cakemail')
     .description('Official Cakemail CLI - Command-line interface for the Cakemail API')
-    .version('1.6.0')
+    .version('1.7.0')
     .option('-f, --format <format>', 'Output format (json|table|compact)')
     .option('--profile <type>', 'Override profile for this command (developer|marketer|balanced)')
     .option('--batch', 'Run in batch/scripting mode (disable all interactive prompts)')
@@ -41,17 +42,32 @@ async function main() {
   try {
     // Check if this is a help/version command that doesn't need credentials
     const args = process.argv.slice(2);
-    const isHelpOrVersion = args.length === 0 ||
-                           args.includes('-h') ||
-                           args.includes('--help') ||
-                           args.includes('-V') ||
-                           args.includes('--version');
+
+    // Check if it's root-level help/version (single flag only)
+    const isRootHelp = (args.length === 1) &&
+                       (args[0] === '-h' || args[0] === '--help' ||
+                        args[0] === '-V' || args[0] === '--version');
+
+    // Check if it's a help request for any subcommand
+    const isSubcommandHelp = args.includes('-h') || args.includes('--help');
+
+    // For root help/version only, skip auth and commands
+    if (isRootHelp) {
+      await program.parseAsync(process.argv);
+      return;
+    }
+
+    // For subcommand help, we need to add commands but can skip auth
+    // For everything else, we need full auth
+    const needsAuth = !isSubcommandHelp;
 
     // Get config with interactive authentication if needed
-    const config = await getConfig(!isHelpOrVersion, !isHelpOrVersion);
+    const config = await getConfig(needsAuth, needsAuth);
 
-    // Create client and formatter with lazy format evaluation
-    const client = new CakemailClient(config);
+    // Create client and formatter (use dummy values for help commands)
+    const client = new CakemailClient(
+      needsAuth ? config : { accessToken: 'dummy', profileConfig: config.profileConfig }
+    );
     const formatter = new OutputFormatter(
       () => {
         const opts = program.opts();
@@ -74,7 +90,6 @@ async function main() {
 
         // Handle --profile override
         if (opts.profile) {
-          const { getProfileConfig } = require('./utils/config-file.js');
           const validProfiles = ['developer', 'marketer', 'balanced'];
 
           if (!validProfiles.includes(opts.profile)) {

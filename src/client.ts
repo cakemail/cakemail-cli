@@ -2,6 +2,8 @@ import { CakemailClient as SDK, CakemailClientConfig } from '@cakemail-org/cakem
 
 export interface CakemailConfig {
   accessToken?: string;
+  refreshToken?: string;
+  expiresIn?: number;
   email?: string;
   password?: string;
   baseURL?: string;
@@ -18,16 +20,24 @@ export class CakemailClient {
   constructor(config: CakemailConfig) {
     this.config = config;
 
-    // The SDK requires email and password
-    if (!config.email || !config.password) {
-      throw new Error('Email and password are required for SDK authentication');
+    // The SDK supports either access token OR email/password
+    if (!config.accessToken && (!config.email || !config.password)) {
+      throw new Error('Either accessToken or email/password is required for authentication');
     }
 
     const sdkConfig: CakemailClientConfig = {
-      email: config.email,
-      password: config.password,
       baseURL: config.baseURL || process.env.CAKEMAIL_API_BASE || 'https://api.cakemail.dev',
     };
+
+    // Use access token if available, otherwise use email/password
+    if (config.accessToken) {
+      sdkConfig.accessToken = config.accessToken;
+      if (config.refreshToken) sdkConfig.refreshToken = config.refreshToken;
+      if (config.expiresIn) sdkConfig.expiresIn = config.expiresIn;
+    } else {
+      sdkConfig.email = config.email;
+      sdkConfig.password = config.password;
+    }
 
     this.sdk = new SDK(sdkConfig);
   }

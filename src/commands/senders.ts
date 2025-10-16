@@ -4,6 +4,7 @@ import { OutputFormatter } from '../utils/output.js';
 import ora from 'ora';
 import { displayError, validate } from '../utils/errors.js';
 import { confirmDelete } from '../utils/confirm.js';
+import { applyListDefaults } from '../utils/list-defaults.js';
 
 export function createSendersCommand(client: CakemailClient, formatter: OutputFormatter): Command {
   const senders = new Command('senders')
@@ -18,12 +19,17 @@ export function createSendersCommand(client: CakemailClient, formatter: OutputFo
     .option('--sort <sort>', 'Sort by field: +name, +email, -confirmed')
     .option('--filter <filter>', 'Filter (e.g., "confirmed==true;email==sender@example.com")')
     .action(async (options) => {
+      const profileConfig = formatter.getProfile();
       const spinner = ora('Fetching senders...').start();
       try {
-        const params: any = {};
-        if (options.limit) params.perPage = parseInt(options.limit);
-        if (options.page) params.page = parseInt(options.page);
-        if (options.sort) params.sort = options.sort;
+        // Apply profile-based defaults for pagination and sorting
+        const listDefaults = applyListDefaults(options, profileConfig);
+        const params: any = {
+          // Map per_page to perPage (senderService uses different naming)
+          perPage: listDefaults.per_page,
+          page: listDefaults.page,
+          sort: listDefaults.sort
+        };
 
         const data = await client.sdk.senderService.listSenders(params);
         spinner.stop();

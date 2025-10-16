@@ -21,6 +21,8 @@ export interface FullConfig extends CakemailConfig {
   currentAccountId?: string;
   profile?: ProfileType;
   profileConfig?: ProfileConfig;
+  refreshToken?: string;
+  expiresIn?: number;
 }
 
 export async function getConfig(required: boolean = true, interactive: boolean = true): Promise<FullConfig> {
@@ -33,7 +35,9 @@ export async function getConfig(required: boolean = true, interactive: boolean =
   }
 
   // Load credentials from config file or .env
-  let accessToken = configFile?.auth?.token || process.env.CAKEMAIL_ACCESS_TOKEN;
+  let accessToken = configFile?.auth?.access_token || configFile?.auth?.token || process.env.CAKEMAIL_ACCESS_TOKEN;
+  let refreshToken = configFile?.auth?.refresh_token;
+  let expiresIn = configFile?.auth?.expires_in;
   let email = configFile?.auth?.email || process.env.CAKEMAIL_EMAIL || process.env.CAKEMAIL_USERNAME;
   let password = process.env.CAKEMAIL_PASSWORD; // Password not stored in config (security)
   const baseURL = configFile?.auth?.base_url || process.env.CAKEMAIL_API_BASE;
@@ -68,6 +72,8 @@ export async function getConfig(required: boolean = true, interactive: boolean =
 
   return {
     accessToken,
+    refreshToken,
+    expiresIn,
     email,
     password,
     baseURL,
@@ -92,7 +98,9 @@ export function getConfigSync(required: boolean = true): FullConfig {
   }
 
   // Load credentials from config file or .env
-  const accessToken = configFile?.auth?.token || process.env.CAKEMAIL_ACCESS_TOKEN;
+  const accessToken = configFile?.auth?.access_token || configFile?.auth?.token || process.env.CAKEMAIL_ACCESS_TOKEN;
+  const refreshToken = configFile?.auth?.refresh_token;
+  const expiresIn = configFile?.auth?.expires_in;
   const email = configFile?.auth?.email || process.env.CAKEMAIL_EMAIL || process.env.CAKEMAIL_USERNAME;
   const password = process.env.CAKEMAIL_PASSWORD; // Password not stored in config (security)
   const baseURL = configFile?.auth?.base_url || process.env.CAKEMAIL_API_BASE;
@@ -113,6 +121,8 @@ export function getConfigSync(required: boolean = true): FullConfig {
 
   return {
     accessToken,
+    refreshToken,
+    expiresIn,
     email,
     password,
     baseURL,

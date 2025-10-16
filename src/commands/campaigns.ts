@@ -6,6 +6,7 @@ import { displayError, validate } from '../utils/errors.js';
 import { confirmDelete } from '../utils/confirm.js';
 import { autoDetectList, autoDetectSender } from '../utils/defaults.js';
 import { promptText, promptSelect, createSpinner } from '../utils/interactive.js';
+import { applyListDefaults } from '../utils/list-defaults.js';
 import chalk from 'chalk';
 
 export function createCampaignsCommand(client: CakemailClient, formatter: OutputFormatter): Command {
@@ -22,13 +23,14 @@ export function createCampaignsCommand(client: CakemailClient, formatter: Output
     .option('--sort <sort>', 'Sort by field: +name, -created_on, +scheduled_for, etc.')
     .option('--filter <filter>', 'Filter (e.g., "status==delivered;name==Newsletter")')
     .action(async (options) => {
+      const profileConfig = formatter.getProfile();
       const spinner = ora('Fetching campaigns...').start();
       try {
-        const params: any = {};
+        // Apply profile-based defaults for pagination and sorting
+        const params: any = applyListDefaults(options, profileConfig);
+
+        // Add campaign-specific filters
         if (options.status) params.status = options.status;
-        if (options.limit) params.per_page = parseInt(options.limit);
-        if (options.page) params.page = parseInt(options.page);
-        if (options.sort) params.sort = options.sort;
         if (options.filter) params.filter = options.filter;
 
         const data = await client.sdk.campaigns.list(params);
