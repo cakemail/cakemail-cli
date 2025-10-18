@@ -15,17 +15,20 @@ Before starting, ensure you have:
 First, verify the CLI is installed and working:
 
 ```bash
-# Check version
+# Check version (no authentication required)
 cakemail --version
 
-# View help
+# View help (no authentication required)
 cakemail --help
 
+# View command-specific help (no authentication required)
+cakemail campaigns --help
+
 # Test authentication
-cakemail account current
+cakemail account show
 ```
 
-If these commands work, you're ready to go!
+**Note:** The `--version` and `--help` commands work without authentication, making it easy to explore the CLI before setting up credentials.
 
 ---
 

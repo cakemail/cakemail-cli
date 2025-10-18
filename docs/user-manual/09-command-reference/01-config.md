@@ -13,10 +13,12 @@ The config commands allow you to manage your CLI profile, customize settings, an
 - [`config set`](#config-set) - Customize individual settings
 - [`config reset`](#config-reset) - Reset all settings to profile defaults
 - [`config show`](#config-show) - Show complete configuration
+- [`logout`](#logout) - Log out and clear all authentication tokens
 
 **Related Documentation:**
 - [Profile System](/en/cli/core-concepts/profile-system/) - Complete profile guide
 - [Configuration Guide](/en/cli/getting-started/configuration/) - Configuration overview
+- [Authentication](/en/cli/getting-started/authentication/) - Authentication methods
 
 ---
 
@@ -618,6 +620,110 @@ cakemail config profile-set balanced
 3. **Config file deleted:**
    - Settings stored in `~/.cakemail/config.json`
    - If deleted, settings are lost
+
+---
+
+## logout
+
+Log out and clear all authentication tokens and configuration.
+
+### Usage
+
+```bash
+cakemail logout [options]
+```
+
+### Options
+
+- `-f, --force` - Skip confirmation prompt
+
+### Examples
+
+**Interactive Logout:**
+```bash
+$ cakemail logout
+```
+
+**Output:**
+```
+🚪 Logout
+
+Currently logged in as: user@example.com
+
+This will remove:
+  • Authentication tokens
+  • Profile settings
+  • All saved configuration
+
+? Are you sure you want to log out? (y/N) y
+
+✓ Logged out successfully
+
+Run any command to log in again.
+```
+
+**Force Logout (Skip Confirmation):**
+```bash
+$ cakemail logout --force
+```
+
+**Output:**
+```
+✓ Logged out successfully
+```
+
+### Description
+
+The logout command removes all stored credentials and configuration from `~/.cakemail/config.json`. This includes:
+
+- OAuth access tokens
+- OAuth refresh tokens
+- Profile settings
+- Account context
+- All custom configuration
+
+After logging out, you'll need to authenticate again the next time you run a command.
+
+### Use Cases
+
+**Switching Accounts:**
+```bash
+# Log out from current account
+$ cakemail logout --force
+
+# Run any command to log in with different account
+$ cakemail campaigns list
+# [Prompts for credentials]
+```
+
+**Shared Machine:**
+```bash
+# Log out when done to protect credentials
+$ cakemail logout --force
+```
+
+**Troubleshooting:**
+```bash
+# Clear all config and start fresh
+$ cakemail logout --force
+$ cakemail campaigns list
+# [Fresh authentication flow]
+```
+
+### Notes
+
+- Logout is profile-aware:
+  - **Marketer profile**: Always confirms (unless `--force`)
+  - **Developer profile**: Never confirms
+  - **Balanced profile**: Confirms in TTY, skips in scripts
+- The entire config file is deleted, not just authentication
+- Cannot be undone - you'll need to re-authenticate
+- Use `--force` in scripts to skip confirmation
+
+### See Also
+
+- [`config show`](#config-show) - View current configuration
+- [Authentication Guide](/en/cli/getting-started/authentication/) - Learn about authentication methods
 
 ---
 

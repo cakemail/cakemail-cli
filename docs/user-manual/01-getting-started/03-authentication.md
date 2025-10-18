@@ -11,13 +11,13 @@ The Cakemail CLI provides **seamless authentication** - just run any command, an
 2. **Email & Password** (recommended for interactive use)
 
 **Credential Sources:**
-- Interactive prompts (easiest - v1.4.0+)
+- Interactive prompts (easiest)
 - Configuration file (`~/.cakemail/config.json`)
 - Environment variables
 - `.env` file
 - Command-line options (for one-off overrides)
 
-**First-Time Experience (v1.4.0+):**
+**First-Time Experience:**
 ```bash
 $ cakemail campaigns list
 # If no credentials found, you'll be prompted interactively
@@ -27,51 +27,9 @@ $ cakemail campaigns list
 
 ## Authentication Methods
 
-### Method 1: Access Token (Recommended)
+### Method 1: Email & Password (Recommended for Interactive Use)
 
-Access tokens provide secure, revocable authentication without exposing your password.
-
-#### Getting Your Access Token
-
-1. Log in to your Cakemail account at [app.cakemail.com](https://app.cakemail.com)
-2. Navigate to **Settings > API Access**
-3. Generate a new access token
-4. Copy the token (you won't be able to see it again)
-
-#### Using Access Token
-
-**Option A: Environment Variable**
-
-```bash
-export CAKEMAIL_ACCESS_TOKEN=your_access_token_here
-```
-
-Add to your shell profile (`~/.zshrc` or `~/.bashrc`) for persistence:
-
-```bash
-echo 'export CAKEMAIL_ACCESS_TOKEN=your_access_token_here' >> ~/.zshrc
-source ~/.zshrc
-```
-
-**Option B: .env File**
-
-Create a `.env` file in your project directory:
-
-```bash
-CAKEMAIL_ACCESS_TOKEN=your_access_token_here
-```
-
-**Option C: Command-Line Flag**
-
-```bash
-cakemail --access-token your_access_token_here campaigns list
-```
-
----
-
-### Method 2: Email & Password
-
-Authenticate using your Cakemail account email and password.
+Authenticate using your Cakemail account email and password. The CLI uses OAuth token-based authentication - when you provide your email and password, the CLI automatically obtains and stores OAuth tokens (access token and refresh token) for secure, long-lived sessions.
 
 **Option A: Environment Variables**
 
@@ -95,47 +53,70 @@ CAKEMAIL_PASSWORD=your_password
 cakemail --email your@email.com --password your_password campaigns list
 ```
 
-**Option D: Interactive Prompts (v1.4.0+)**
+**Option D: Interactive Prompts**
 
 If no credentials are found, the CLI will prompt you interactively on first use:
 
 ```bash
 $ cakemail campaigns list
 
-Welcome to Cakemail CLI!
+⚠ Not authenticated
+Please enter your Cakemail credentials:
 
-? Email: user@example.com
-? Password: [hidden]
+Email: user@example.com
+Password: ********
 
-✓ Authentication successful
-✓ Found 3 accessible accounts
-✓ Current account: My Marketing Account (12345)
+🔐 Authenticating...
+✓ Authentication successful!
 
-? Select your preferred profile:
-  ❯ Balanced - Best of both worlds (recommended)
-    Developer - Fast, non-interactive, JSON output
-    Marketer - Interactive, guided, safe
+# If you have multiple accounts
+? Select an account:
+  › Cakemail (ID: 123456) ⭐
+    Sub-Account A (ID: 789012)
+    Sub-Account B (ID: 345678)
 
-✓ Profile set to: balanced
-✓ Credentials saved to ~/.cakemail/config.json
+# Profile selection
+? Select your profile:
+  › 📊 Marketer - Interactive, user-friendly
+    💻 Developer - Fast, scriptable
+    ⚖️  Balanced - Best of both
+
+✓ Profile set to: marketer
+✓ OAuth tokens saved to ~/.cakemail/config.json
 
 [... proceeds with your command ...]
 ```
 
-**First-Time Setup:**
-- Credentials are validated via API
-- Automatically saved to `~/.cakemail/config.json`
+**How OAuth Authentication Works:**
+- You provide email and password once
+- CLI obtains OAuth access token and refresh token
+- Tokens are stored securely in `~/.cakemail/config.json`
+- Your password is **never** stored - only tokens
+- Tokens automatically refresh when needed
 - You'll select a user profile (developer, marketer, or balanced)
 - No separate setup command required
 
+**What's Stored in config.json:**
+- `access_token` - Used for API authentication
+- `refresh_token` - Used to obtain new access tokens
+- `expires_in` - Token expiration tracking
+- `auth.method` - Authentication method used
+
 **Subsequent Commands:**
-- Credentials loaded automatically from config
+- OAuth tokens loaded automatically from config
+- Tokens refreshed automatically when expired
 - No prompts needed
 - Just run your commands
 
 ---
 
-## Multi-Tenant Account Management (v1.4.0+)
+### Method 2: Access Token (Advanced - Manual Token Management)
+
+For advanced users who want to manually manage API tokens, you can provide an access token directly. This skips the OAuth flow.
+
+---
+
+## Multi-Tenant Account Management
 
 If you have access to multiple Cakemail accounts (parent account + sub-accounts), you can easily list and switch between them.
 
@@ -220,24 +201,65 @@ cakemail account test
 
 ### Logout
 
-Remove stored credentials:
+Remove stored credentials and authentication tokens:
 
 ```bash
-cakemail account logout --force
+cakemail logout
 ```
 
-**Warning:** This removes credentials from `~/.cakemail/config.json`. You'll need to authenticate again on next use.
+**Interactive Logout:**
+```bash
+$ cakemail logout
+
+🚪 Logout
+
+Currently logged in as: user@example.com
+
+This will remove:
+  • Authentication tokens
+  • Profile settings
+  • All saved configuration
+
+? Are you sure you want to log out? (y/N) y
+
+✓ Logged out successfully
+
+Run any command to log in again.
+```
+
+**Force Logout (Skip Confirmation):**
+```bash
+$ cakemail logout --force
+✓ Logged out successfully
+```
+
+**What Gets Deleted:**
+- OAuth access token and refresh token
+- Profile settings
+- Account context
+- All saved configuration from `~/.cakemail/config.json`
+
+**Note:** You'll need to authenticate again on next use.
 
 ---
 
 ## Security Best Practices
 
-### 1. Use Access Tokens for Automation
+### 1. OAuth Tokens vs Manual Access Tokens
 
-Access tokens are safer for scripts and CI/CD pipelines because:
-- They can be revoked without changing your password
-- They have limited scope (API access only)
-- They're easier to rotate regularly
+**OAuth Tokens (Recommended for Most Users):**
+- Obtained automatically from email/password
+- Include refresh tokens for long-lived sessions
+- Your password is never stored
+- Tokens automatically refreshed
+- Safer for interactive use
+
+**Manual Access Tokens (For Automation):**
+- Generated in Cakemail dashboard
+- Good for CI/CD pipelines and scripts
+- Can be revoked without changing password
+- Limited scope (API access only)
+- Easier to rotate regularly
 
 ### 2. Store Credentials Securely
 
@@ -251,34 +273,49 @@ Access tokens are safer for scripts and CI/CD pipelines because:
 - Share credentials in chat or email
 - Use the same token across multiple projects
 
-### 3. Add .env to .gitignore
+### 3. Protect Configuration Files
 
-Always exclude `.env` files from version control:
+Always exclude configuration files from version control:
 
 ```bash
 # Add to .gitignore
 echo '.env' >> .gitignore
+echo '.cakemail/' >> .gitignore
 ```
 
-Create a `.env.example` file as a template:
+**Important:** The `~/.cakemail/config.json` file contains:
+- OAuth access tokens
+- OAuth refresh tokens
+- Profile settings
+- Account context
+
+**Never commit config.json to version control.**
+
+### 4. Use Logout When Switching Accounts
+
+When switching between different Cakemail accounts or sharing a machine:
 
 ```bash
-# .env.example
-CAKEMAIL_ACCESS_TOKEN=your_access_token_here
-# OR
-# CAKEMAIL_EMAIL=your@email.com
-# CAKEMAIL_PASSWORD=your_password
+# Log out completely
+cakemail logout --force
 
-# Optional configuration
-CAKEMAIL_OUTPUT_FORMAT=compact
+# Log in with new account
+cakemail campaigns list
+# [Prompts for credentials]
 ```
 
-### 4. Rotate Tokens Regularly
+### 5. Token Security
 
-Generate new access tokens periodically:
-1. Generate a new token in the Cakemail dashboard
-2. Update your `.env` file or environment variable
-3. Revoke the old token
+**OAuth tokens are automatically managed:**
+- Access tokens expire and are refreshed automatically
+- Refresh tokens are long-lived but can be invalidated
+- Use `logout` command to remove all tokens when done
+
+**For manual access tokens:**
+- Rotate tokens periodically
+- Generate new token in Cakemail dashboard
+- Update environment variable or `.env` file
+- Revoke old token
 
 ---
 

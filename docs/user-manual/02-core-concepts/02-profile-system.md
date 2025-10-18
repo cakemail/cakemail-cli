@@ -4,7 +4,7 @@ Learn how the Cakemail CLI adapts to your workflow with three user profiles.
 
 ## Overview
 
-The Profile System (introduced) allows the CLI to adapt its behavior to match your role and preferences. Choose from three profiles, each optimized for different use cases:
+The Profile System allows the CLI to adapt its behavior to match your role and preferences. Choose from three profiles, each optimized for different use cases:
 
 - **Developer Profile** - Fast, scriptable, minimal output
 - **Marketer Profile** - Guided, interactive, safe
@@ -37,6 +37,7 @@ Optimized for automation, scripting, and experienced users.
 - **Progress Indicators**: Hidden (faster output)
 - **Error Messages**: Technical (full details, API context)
 - **Tips & Hints**: Disabled (you know the CLI)
+- **List Defaults**: API defaults (50 items per page, default sort order)
 
 **Best For:**
 - CI/CD pipelines
@@ -66,6 +67,7 @@ Optimized for safety, guidance, and visual clarity.
 - **Progress Indicators**: Shown (visual feedback)
 - **Error Messages**: Friendly (clear explanations, suggestions)
 - **Tips & Hints**: Enabled (helpful guidance)
+- **List Defaults**: Curated experience (25 items per page, sort by newest first)
 
 **Best For:**
 - Marketing team members
@@ -102,6 +104,7 @@ The perfect middle ground for most users.
 - **Progress Indicators**: Shown (helpful feedback)
 - **Error Messages**: Balanced (clear but detailed)
 - **Tips & Hints**: Auto-detect (shown when helpful)
+- **List Defaults**: API defaults (50 items per page, default sort order)
 
 **Best For:**
 - Most users (recommended default)
@@ -313,6 +316,54 @@ Response: {"error":"resource_not_found","message":"Campaign not found"}
 Error: Campaign not found (ID: 999)
 Suggestion: Use 'cakemail campaigns list' to see available campaigns
 ```
+
+---
+
+### List Defaults
+
+Profiles control default pagination and sorting behavior for list commands.
+
+**Developer Profile** - API defaults
+```bash
+$ cakemail campaigns list
+# Returns 50 items per page (API default)
+# Uses API default sort order
+```
+
+**Marketer Profile** - Curated experience
+```bash
+$ cakemail campaigns list
+# Returns 25 items per page (more manageable)
+# Sorts by newest first (-created_on)
+# Shows: "Showing 1-25 of 150 • Page 1 of 6"
+```
+
+**Balanced Profile** - API defaults
+```bash
+$ cakemail campaigns list
+# Returns 50 items per page (API default)
+# Uses API default sort order
+```
+
+**Override with Explicit Flags:**
+```bash
+# All profiles respect explicit flags
+$ cakemail campaigns list --limit 50 --sort "+name"
+# Returns 50 items sorted by name (regardless of profile)
+```
+
+**Affected Commands:**
+- `campaigns list`
+- `contacts list`
+- `lists list`
+- `senders list`
+- `templates list`
+- All other list operations
+
+**Why Different Defaults?**
+- **Developer**: Wants full control, prefers API behavior (50 items, default sort)
+- **Marketer**: Benefits from smaller pages and newest-first sorting (25 items, `-created_on`)
+- **Balanced**: Uses API defaults for consistency (50 items, default sort)
 
 ---
 

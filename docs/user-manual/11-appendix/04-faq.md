@@ -25,9 +25,12 @@ The CLI tool itself is free and open-source. You pay only for your Cakemail acco
 ### How do I get help?
 
 ```bash
-# CLI help
+# CLI help (no authentication required)
 $ cakemail --help
 $ cakemail campaigns --help
+
+# Check version (no authentication required)
+$ cakemail --version
 
 # Documentation
 https://docs.cakemail.com
@@ -35,6 +38,8 @@ https://docs.cakemail.com
 # Support
 support@cakemail.com
 ```
+
+**Note:** The `--help` and `--version` commands work without authentication.
 
 ## Installation & Setup
 
