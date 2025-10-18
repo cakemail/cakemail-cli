@@ -33,3 +33,6 @@ coverage/
 *.tmp
 *.temp
 *.cache
+
+# Archive folder for deprecated files
+_archive/
