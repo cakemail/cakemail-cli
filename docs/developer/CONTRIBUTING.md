@@ -14,7 +14,7 @@ Thank you for your interest in contributing to the Cakemail CLI! This document p
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/cakemail/cli.git
+   git clone https://github.com/cakemail/cakemail-cli.git
    cd cli
    ```
 

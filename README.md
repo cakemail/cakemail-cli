@@ -897,4 +897,4 @@ MIT
 
 ## Support
 
-For issues and questions, please visit: https://github.com/cakemail/cli/issues
+For issues and questions, please visit: https://github.com/cakemail/cakemail-cli/issues

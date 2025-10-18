@@ -260,7 +260,7 @@ export function enhanceError(error: any, context: ErrorContext): EnhancedError {
   return {
     message: parsed.message,
     suggestion: 'An unexpected error occurred',
-    help: 'If this persists, please report it at: https://github.com/cakemail/cli/issues'
+    help: 'If this persists, please report it at: https://github.com/cakemail/cakemail-cli/issues'
   };
 }
 

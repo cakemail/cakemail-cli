@@ -404,7 +404,7 @@ All existing commands continue to work unchanged.
 
 ## 📞 Support
 
-- **Issues:** https://github.com/cakemail/cli/issues
+- **Issues:** https://github.com/cakemail/cakemail-cli/issues
 - **Documentation:** https://docs.cakemail.com/cli
 - **npm Package:** https://www.npmjs.com/package/@cakemail-org/cakemail-cli
 

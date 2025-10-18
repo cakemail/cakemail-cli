@@ -42,6 +42,14 @@
     "email": "francois@cakemail.com"
   },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cakemail/cakemail-cli.git"
+  },
+  "homepage": "https://github.com/cakemail/cakemail-cli#readme",
+  "bugs": {
+    "url": "https://github.com/cakemail/cakemail-cli/issues"
+  },
   "dependencies": {
     "@cakemail-org/cakemail-sdk": "^2.0.0",
     "chalk": "^5.3.0",
